@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "57942026538",
+    "project_id": "vencify-55fbe",
+    "storage_bucket": "vencify-55fbe.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:57942026538:android:65d192de02254624a91653",
+        "android_client_info": {
+          "package_name": "com.le0henr1que.appvalist.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "57942026538-brdhjdk2i24depq4h4ep8ibsmrumff4b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.le0henr1que.appvalist.android",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCN0SzGCZY6qVzRDf4Hoslgr8TtFmKtH2E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "57942026538-9eollahbv2cekm62deuaqhunvq8od6vf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.le0henr1que.appvalist"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

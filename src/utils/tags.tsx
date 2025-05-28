@@ -1,0 +1,11 @@
+export enum Tags {
+  LOGIN = "LOGIN",
+  USER = "USER",
+  FILE = "FILE",
+  SUBSCRIPTION = "SUBSCRIPTION",
+  PLAN = "PLAN",
+  PRODUCT = "PRODUCT",
+  SUPPLIER = "SUPPLIER",
+  BATCH = "BATCH",
+  CATEGORY = "CATEGORY",
+}
