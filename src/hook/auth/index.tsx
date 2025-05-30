@@ -192,8 +192,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await AsyncStorage.setItem("@vencify:token", accessTokenApi);
           await AsyncStorage.setItem("@vencify:refresh_token", refreshToken);
           dispatch(setToken(accessTokenApi));
-          await refetchUserData();
-          dispatch(setUser(userDataBase));
+          dispatch(setUser({ name: "Leonardo HHQQ" }));
           setIsAuthenticated(true);
         }
         return {
@@ -220,9 +219,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await AsyncStorage.setItem("@vencify:token", accessTokenApi);
           await AsyncStorage.setItem("@vencify:refresh_token", refreshToken);
           dispatch(setToken(accessTokenApi));
-          await refetchUserData();
-          dispatch(setUser(userDataBase));
-
+          dispatch(setUser({ name: "Leonardo HHQQ" }));
           setIsAuthenticated(true);
         }
         return {

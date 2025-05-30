@@ -64,7 +64,7 @@ export default function Login() {
       );
       navigation.navigate("StoreRegistrationFlow", {
         access_token: googleToken,
-        name: "Qualquer nome porenquanto",
+        name: user?.name,
       } as never);
     }
   }, [toGoOnboarding, response]);
