@@ -25,6 +25,7 @@ const PER_PAGE = 10;
 function Products() {
   const { control } = useForm();
   const { user } = useAuth();
+  console.log("user AQUIIIIIIIIIIIIIIIIIIII", user);
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const { updateFilter } = useBatchFilterActions();
   const isFocused = useIsFocused();
@@ -35,6 +36,8 @@ function Products() {
   const {
     data: batchs,
     isLoading,
+    error,
+    isError,
     refetch,
     isFetching,
   } = useGetBatchsQuery({
@@ -44,6 +47,8 @@ function Products() {
       perPage: PER_PAGE,
     },
   });
+  console.log("error", error);
+  console.log("isError", isError);
 
   useLayoutEffect(() => {
     updateFilter({ key: "search", value: productInformation?.code });
@@ -62,12 +67,56 @@ function Products() {
   const renderItem = ({ item }: { item: any }) => {
     return <ProductCard item={item} />;
   };
+  const notificationCount = 2;
 
   const keyExtractor = (item: any) => item.id.toString();
   return (
     <View style={{ flex: 1 }}>
       <Header.Root>
-        <Text>dsdsa</Text>
+        <View style={{}}>
+          <Text
+            style={{
+              color: colors.neutral["900"],
+              fontSize: 16,
+              fontWeight: "600",
+              fontFamily: typography.fontFamily.semibold,
+              lineHeight: 24,
+            }}
+          >
+            Olá, {user?.name}
+          </Text>
+        </View>
+        <View
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            flexDirection: "row",
+            gap: 12,
+          }}
+        >
+          <Ionicons
+            name="help-circle-outline"
+            size={24}
+            color="#343330"
+            style={styles.icon}
+          />
+          <TouchableOpacity onPress={() => navigation.navigate("Notification")}>
+            <Ionicons
+              name="notifications-outline"
+              size={24}
+              color="#343330"
+              style={styles.icon}
+            />
+
+            {notificationCount > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>
+                  {notificationCount > 99 ? "99+" : notificationCount}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
       </Header.Root>
       <View style={styles.container}>
         <View style={styles.searchProducts}>
@@ -80,7 +129,7 @@ function Products() {
         </View>
         <View style={styles.containerTitle}>
           <Text style={styles.title}>Todos os produtos</Text>
-          <Text style={styles.badge}>{batchs?.meta?.total}</Text>
+          <Text style={styles.badgeProduct}>{batchs?.meta?.total}</Text>
         </View>
 
         <InfiniteScrollWithLoad
@@ -116,6 +165,33 @@ export const styles = StyleSheet.create({
     padding: 15,
     alignItems: "center",
   },
+  badge: {
+    position: "absolute",
+    right: 0,
+    top: -5,
+    backgroundColor: "red",
+    borderRadius: 10,
+    height: 20,
+    minWidth: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 5,
+    zIndex: 1,
+  },
+  badgeText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  icon: {
+    width: 40,
+    height: 40,
+    padding: 8,
+    backgroundColor: colors.neutral["100"],
+    borderRadius: 22.5,
+    alignItems: "center",
+    display: "flex",
+  },
   searchProducts: {
     flexDirection: "column",
     justifyContent: "space-between",
@@ -123,7 +199,7 @@ export const styles = StyleSheet.create({
     width: "100%",
     marginBottom: 24,
   },
-  badge: {
+  badgeProduct: {
     display: "flex",
     paddingHorizontal: 6,
     paddingVertical: 0,

@@ -4,12 +4,14 @@ interface AuthState {
   token: string | null;
   googleToken: string | null;
   facebookToken: string | null;
+  user: any | null; // Define a more specific type if available
 }
 
 const initialState: AuthState = {
   token: null,
   googleToken: null,
   facebookToken: null,
+  user: null,
 };
 
 const authSlice = createSlice({
@@ -34,6 +36,9 @@ const authSlice = createSlice({
     clearFacebookToken(state) {
       state.facebookToken = null;
     },
+    setUser(state, action: PayloadAction<any>) {
+      state.user = action.payload;
+    },
   },
 });
 
@@ -44,5 +49,6 @@ export const {
   clearGoogleToken,
   setFacebookToken,
   clearFacebookToken,
+  setUser,
 } = authSlice.actions;
 export default authSlice.reducer;

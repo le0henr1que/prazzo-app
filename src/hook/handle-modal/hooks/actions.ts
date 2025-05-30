@@ -1,14 +1,16 @@
 import { useDispatch } from "react-redux";
-import { open } from "..";
+import { open, close } from "..";
 import { DialogModalState } from "../types";
 
 export const useDialogModal = () => {
   const dispatch = useDispatch();
 
   const handleModal = (payload: DialogModalState) => {
-    setTimeout(() => {
+    if (payload.isOpen) {
       dispatch(open(payload));
-    }, 0);
+    } else {
+      dispatch(close());
+    }
   };
 
   return { handleModal };

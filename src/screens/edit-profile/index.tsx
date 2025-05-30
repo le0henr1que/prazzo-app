@@ -168,7 +168,13 @@ export default function EditProfile() {
     setValue("email", user?.email);
     setValue("whatsapp", user?.whatsapp_number);
     setValue("phone", user?.phone_number);
-    setImageUri(user.avatar ? `${API_URL}${user.avatar}` : null);
+    if (user && user.avatar) {
+      if (user.avatar.startsWith("http")) {
+        setImageUri(user.avatar);
+      } else {
+        setImageUri(user.avatar ? `${API_URL}${user.avatar}` : null);
+      }
+    }
   }, [user]);
 
   return (

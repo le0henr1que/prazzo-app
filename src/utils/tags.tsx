@@ -8,4 +8,5 @@ export enum Tags {
   SUPPLIER = "SUPPLIER",
   BATCH = "BATCH",
   CATEGORY = "CATEGORY",
+  ORGANIZATION = "ORGANIZATION",
 }

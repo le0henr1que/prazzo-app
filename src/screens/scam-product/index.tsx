@@ -154,6 +154,14 @@ const ScamProduct = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.cameraContainer}>
+        <CameraView
+          barcodeScannerSettings={{
+            barcodeTypes: !scanned ? ["code128", "upc_a", "ean13"] : [],
+          }}
+          style={styles.cameraAbsolute}
+          onBarcodeScanned={(barcodeData) => handleBarCodeScanned(barcodeData)}
+          onCameraReady={() => setCameraReady(true)}
+        />
         <View style={styles.overlayTop}>
           <View style={{ display: "flex", flexDirection: "row", gap: 16 }}>
             <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -167,15 +175,6 @@ const ScamProduct = () => {
             </TouchableOpacity>
           )}
         </View>
-
-        <CameraView
-          barcodeScannerSettings={{
-            barcodeTypes: !scanned ? ["code128", "upc_a", "ean13"] : [],
-          }}
-          style={styles.camera}
-          onBarcodeScanned={(barcodeData) => handleBarCodeScanned(barcodeData)}
-          onCameraReady={() => setCameraReady(true)}
-        />
         {loading && !error && (
           <View style={styles.loadView}>
             <LottieView
@@ -278,11 +277,15 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
   },
+  cameraAbsolute: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 0,
+  },
   cameraContainer: {
+    flex: 1,
     width: "100%",
     height: "100%",
-    display: "flex",
-    flexDirection: "column",
+    position: "relative",
     justifyContent: "space-between",
     alignItems: "center",
     zIndex: 0,
@@ -304,9 +307,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 50,
     left: 0,
-    right: 0,
-    zIndex: 1,
-    justifyContent: "center",
     alignItems: "center",
     padding: 10,
     backgroundColor: "transparent",

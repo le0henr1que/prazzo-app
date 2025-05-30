@@ -12,6 +12,8 @@ import { formatCurrency } from "../utils/format-to-money";
 import { formatDate } from "../utils/format-date";
 import ScamBarIcon from "../../assets/icons/scam-bar";
 import { typography } from "../styles/typography";
+import { useCallback, useMemo, useRef } from "react";
+import BottomSheet from "@gorhom/bottom-sheet";
 
 const ProductCard = ({ item }: any) => {
   const { handleModal } = useDialogModal();
@@ -19,8 +21,11 @@ const ProductCard = ({ item }: any) => {
 
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const handlePressProductCard = () => {
-    console.log("Produto clicado");
-    navigation.navigate("ViewProduct");
+    console.log("Parametros", item?.product);
+    navigation.navigate("ViewProduct", {
+      productId: item?.product.id,
+      batchId: item?.id,
+    });
   };
   const handlePress = () => {
     handleModal({
@@ -28,6 +33,7 @@ const ProductCard = ({ item }: any) => {
       element: <CardAction navigation={navigation} />,
     });
   };
+
   return (
     <>
       <TouchableOpacity style={{ paddingBottom: 16 }}>
@@ -146,7 +152,6 @@ const ProductCard = ({ item }: any) => {
     </>
   );
 };
-
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "#fff",

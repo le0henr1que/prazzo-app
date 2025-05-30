@@ -10,10 +10,23 @@ import CustomSwitch from "./switch";
 const DeleteAction = ({ navigation, isProduct }: any) => {
   const { handleModal } = useDialogModal();
   const [isEnabled, setIsEnabled] = React.useState(false);
+
   const toggleSwitch = () => {
-    console.log("isEnabled", isEnabled);
     setIsEnabled((previousState) => !previousState);
   };
+
+  const handleDelete = () => {
+    // Aqui você pode adicionar a lógica de exclusão
+    handleModal({ isOpen: false });
+    if (navigation) {
+      navigation.navigate("Home");
+    }
+  };
+
+  const handleCancel = () => {
+    handleModal({ isOpen: false });
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.containerTitle}>
@@ -35,7 +48,7 @@ const DeleteAction = ({ navigation, isProduct }: any) => {
               alignItems: "center",
             }}
           >
-            <CustomSwitch />
+            <CustomSwitch value={isEnabled} onValueChange={toggleSwitch} />
             <Text style={styles.switchTitle}>
               Excluir todos os lotes desse produto
             </Text>
@@ -43,8 +56,12 @@ const DeleteAction = ({ navigation, isProduct }: any) => {
         )}
       </View>
       <View style={styles.buttonContainer}>
-        <Button variant="danger">Excluir {isProduct && "produto"}</Button>
-        <Button variant="neutral">Cancelar</Button>
+        <Button variant="danger" onPress={handleDelete}>
+          Excluir {isProduct ? "produto" : "lote"}
+        </Button>
+        <Button variant="neutral" onPress={handleCancel}>
+          Cancelar
+        </Button>
       </View>
     </View>
   );
@@ -57,16 +74,20 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   switchTitle: {
-    color: "18181B",
+    color: "#18181B",
     fontSize: 16,
-    fontWeight: 500,
+    fontWeight: "500",
     lineHeight: 24,
   },
-  title: { color: "#212121", fontSize: 18, fontWeight: 600 },
+  title: {
+    color: "#212121",
+    fontSize: 18,
+    fontWeight: "600",
+  },
   subTitle: {
     color: colors.neutral["500"],
     fontSize: 16,
-    fontWeight: 400,
+    fontWeight: "400",
     lineHeight: 24,
     textAlign: "center",
   },
@@ -80,7 +101,6 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingBottom: 24,
   },
-  switch: {},
   containerTitles: {
     display: "flex",
     alignItems: "center",

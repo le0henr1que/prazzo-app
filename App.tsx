@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Inter_100Thin,
   Inter_100Thin_Italic,
@@ -19,18 +20,20 @@ import {
 } from "@expo-google-fonts/inter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import * as SplashScreen from "expo-splash-screen";
-import { StrictMode, useEffect } from "react";
-import { AppRegistry } from "react-native";
+import { useEffect } from "react";
+import { AppRegistry, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ToastProvider } from "react-native-toast-notifications";
 import { Provider } from "react-redux";
-import Modal from "./src/components/modalize";
+import CustomModal from "./src/components/modalize";
 import ModalNotification from "./src/components/notification";
+import { AuthProvider } from "./src/hook/auth";
 import Routes from "./src/routes";
 import { store } from "./store/store";
-import { AuthProvider } from "./src/hook/auth";
 
 SplashScreen.preventAutoHideAsync();
+
+const queryClient = new QueryClient();
 
 export default function App() {
   const [loaded, error] = useFonts({
@@ -62,25 +65,27 @@ export default function App() {
     return null;
   }
 
-  const queryClient = new QueryClient();
-
   return (
-    // <StrictMode>
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <ToastProvider>
-        <Provider store={store}>
-          <QueryClientProvider client={queryClient}>
-            <Modal />
-            <ModalNotification />
+    <GestureHandlerRootView style={styles.container}>
+      <Provider store={store}>
+        <QueryClientProvider client={queryClient}>
+          <ToastProvider>
             <AuthProvider>
               <Routes />
+              <CustomModal />
+              <ModalNotification />
             </AuthProvider>
-          </QueryClientProvider>
-        </Provider>
-      </ToastProvider>
+          </ToastProvider>
+        </QueryClientProvider>
+      </Provider>
     </GestureHandlerRootView>
-    // </StrictMode>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
 
 AppRegistry.registerComponent("main", () => App);

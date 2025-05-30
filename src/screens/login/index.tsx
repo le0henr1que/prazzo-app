@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   Image,
@@ -23,14 +23,22 @@ import { typography } from "../../styles/typography";
 import { styles } from "./login.styles";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ScreensType } from "../index.screens";
+import { set } from "lodash";
 
 export default function Login() {
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<ScreensType>>();
   const { handleNotification } = useDialogNotification();
 
-  const { signIn, signInWithGoogle, isAuthenticated, user, isLoading } =
-    useAuth();
+  const {
+    signIn,
+    signInWithGoogle,
+    isAuthenticated,
+    user,
+    isLoading,
+    toGoOnboarding,
+    googleToken,
+  } = useAuth();
 
   const {
     control,
@@ -39,6 +47,7 @@ export default function Login() {
     setError,
     watch,
   } = useForm();
+  const [response, setResponse] = useState<any>(null);
 
   const formValues = watch();
   const isFormValid = () => {
@@ -47,10 +56,22 @@ export default function Login() {
     );
   };
 
+  useEffect(() => {
+    if (toGoOnboarding) {
+      console.log(
+        "toGoOnboarding is true, navigating to StoreRegistrationFlow",
+        response
+      );
+      navigation.navigate("StoreRegistrationFlow", {
+        access_token: googleToken,
+        name: "Qualquer nome porenquanto",
+      } as never);
+    }
+  }, [toGoOnboarding, response]);
+
   const googleLogin = async () => {
     try {
       await signInWithGoogle();
-      // Remova: navigation.navigate("Home");
     } catch (error) {
       console.error("Error during Google Sign-In:", error);
       handleNotification({

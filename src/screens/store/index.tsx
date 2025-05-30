@@ -17,6 +17,8 @@ import PencilIcon from "../../../assets/icons/pencil-icon";
 import TruckIcon from "../../../assets/icons/truck-icon";
 import { colors } from "../../styles/colors";
 import { ScreensType } from "../index.screens";
+import { useGetOneOrganizationQuery } from "../../services/organization";
+import { useAuth } from "../../hook/auth";
 
 const styles = StyleSheet.create({
   container: {
@@ -292,28 +294,51 @@ const InfoCard: React.FC<InfoCardProps> = ({ title, value }) => {
   );
 };
 
-const StoreInformation = () => (
-  <View style={styles.information}>
-    <View style={styles.informationHeader}>
-      <View>
-        <Text style={styles.title1}>Você está em:</Text>
-        <Text style={styles.title2}>Clóvis mercadinho</Text>
-        <Text style={styles.title3}>Rua Pelicano, 13, Jardim Aliança</Text>
+const StoreInformation = () => {
+  const { user } = useAuth();
+  console.log(user, "User Information:", user);
+  const { data } = useGetOneOrganizationQuery({
+    id: user?.currentOrganizationId || "",
+  });
+  console.log("Store Information Datas dads adas:", data);
+  return (
+    <View style={styles.information}>
+      <View style={styles.informationHeader}>
+        <View>
+          <Text style={styles.title1}>Você está em:</Text>
+          <Text style={styles.title2}>{data?.name ?? ""}</Text>
+          <Text style={styles.title3}>
+            {data?.address?.street}, {data?.address?.number},
+            {data?.address?.neighborhood}
+          </Text>
+        </View>
+        <Avatar uri="https://via.placeholder.com/150" />
       </View>
-      <Avatar uri="https://via.placeholder.com/150" />
+      <View style={styles.informationContent}>
+        <View style={styles.contentRow}>
+          <InfoCard
+            title="Total de produtos"
+            value={data?.metrics?.products?.total.toString() || "0"}
+          />
+          <InfoCard
+            title="Vencidos"
+            value={data?.metrics?.products?.expired.toString() || "0"}
+          />
+        </View>
+        <View style={styles.contentRow}>
+          <InfoCard
+            title="Próximos de vencer"
+            value={data?.metrics?.products?.near_expiration.toString() || "0"}
+          />
+          <InfoCard
+            title="Membros da loja"
+            value={data?.metrics?.users?.total.toString() || "0"}
+          />
+        </View>
+      </View>
     </View>
-    <View style={styles.informationContent}>
-      <View style={styles.contentRow}>
-        <InfoCard title="Total de produtos" value="1.000" />
-        <InfoCard title="Vencidos" value="1.000" />
-      </View>
-      <View style={styles.contentRow}>
-        <InfoCard title="Próximos de vencer" value="1.000" />
-        <InfoCard title="Membros da loja" value="1.000" />
-      </View>
-    </View>
-  </View>
-);
+  );
+};
 
 const options = [
   {
@@ -349,43 +374,43 @@ const options = [
       />
     ),
     isPro: true,
-    redirectTo: "ManageMembers",
+    redirectTo: "Members",
   },
   {
     title: "Gerenciar fornecedores",
     description: "Adicione fornecedores em cada loja",
     icon: <TruckIcon />,
     isPro: true,
-    redirectTo: "ManageProviders",
+    redirectTo: "Supplier",
   },
-  {
-    title: "Exportar relatórios",
-    description: "Exporte relatórios detalhados da sua loja",
-    icon: (
-      <Ionicons
-        name="documents"
-        size={24}
-        color={colors.primary[600]}
-        style={styles.icon}
-      />
-    ),
-    isPro: true,
-    redirectTo: "ExportReport",
-  },
-  {
-    title: "Excluir loja",
-    description: "Apagar todos os dados dessa loja",
-    icon: (
-      <Ionicons
-        name="trash"
-        size={24}
-        color={colors.danger[600]}
-        style={styles.Ticon}
-      />
-    ),
-    isPro: false,
-    redirectTo: "DeleteStore",
-  },
+  // {
+  //   title: "Exportar relatórios",
+  //   description: "Exporte relatórios detalhados da sua loja",
+  //   icon: (
+  //     <Ionicons
+  //       name="documents"
+  //       size={24}
+  //       color={colors.primary[600]}
+  //       style={styles.icon}
+  //     />
+  //   ),
+  //   isPro: true,
+  //   redirectTo: "ExportReport",
+  // },
+  // {
+  //   title: "Excluir loja",
+  //   description: "Apagar todos os dados dessa loja",
+  //   icon: (
+  //     <Ionicons
+  //       name="trash"
+  //       size={24}
+  //       color={colors.danger[600]}
+  //       style={styles.Ticon}
+  //     />
+  //   ),
+  //   isPro: false,
+  //   redirectTo: "DeleteStore",
+  // },
 ];
 const StoreOptions = ({ options }: any) => {
   const navigation = useNavigation();

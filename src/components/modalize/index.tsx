@@ -1,54 +1,70 @@
-import React, { forwardRef, useEffect, useRef } from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { Modalize } from "react-native-modalize";
+import React, { useEffect } from "react";
+import { View, Text, StyleSheet, Keyboard } from "react-native";
+import Modal from "react-native-modal";
 import { useDialogModalState } from "../../hook/handle-modal/hooks/dialog-modal-state";
 import { useDialogModal } from "../../hook/handle-modal/hooks/actions";
 
-const Modal = forwardRef(() => {
+const CustomModal = () => {
   const { isOpen, element, title } = useDialogModalState();
   const { handleModal } = useDialogModal();
-  const modalizeRef = useRef<Modalize>(null);
-  const closeModal = () => {
-    handleModal({ isOpen: false });
-  };
+
   useEffect(() => {
     if (isOpen) {
-      modalizeRef.current?.open();
-    } else {
-      modalizeRef.current?.close();
+      Keyboard.dismiss();
     }
   }, [isOpen]);
 
+  const handleClose = () => {
+    handleModal({ isOpen: false });
+  };
+
   return (
-    <Modalize
-      ref={modalizeRef}
-      onClose={closeModal}
-      handleStyle={{
-        backgroundColor: "#DEDEDE",
-        marginTop: 25,
-        height: 6,
-        width: 40,
-        borderRadius: 3,
-      }}
-      modalStyle={styles.modal}
-      adjustToContentHeight={true}
-      overlayStyle={styles.overlay}
+    <Modal
+      isVisible={isOpen}
+      onBackdropPress={handleClose}
+      onBackButtonPress={handleClose}
+      onSwipeComplete={handleClose}
+      swipeDirection={["down"]}
+      style={styles.modal}
+      backdropOpacity={0.5}
+      animationInTiming={300}
+      animationOutTiming={300}
+      backdropTransitionInTiming={300}
+      backdropTransitionOutTiming={300}
+      useNativeDriver={false}
+      propagateSwipe
     >
-      {title && (
-        <View style={styles.containerText}>
-          <Text style={styles.titleStyle}>{title}</Text>
-        </View>
-      )}
-      <View style={styles.container}>{element}</View>
-    </Modalize>
+      <View style={styles.contentContainer}>
+        <View style={styles.handleIndicator} />
+        {title && (
+          <View style={styles.containerText}>
+            <Text style={styles.titleStyle}>{title}</Text>
+          </View>
+        )}
+        <View style={styles.container}>{element}</View>
+      </View>
+    </Modal>
   );
-});
+};
 
 const styles = StyleSheet.create({
   modal: {
+    margin: 0,
+    justifyContent: "flex-end",
+  },
+  contentContainer: {
     backgroundColor: "#fff",
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
+    minHeight: 100,
+  },
+  handleIndicator: {
+    backgroundColor: "#DEDEDE",
+    height: 6,
+    width: 40,
+    borderRadius: 3,
+    alignSelf: "center",
+    marginTop: 10,
   },
   titleStyle: {
     color: "#333",
@@ -59,29 +75,18 @@ const styles = StyleSheet.create({
     lineHeight: 28,
   },
   containerText: {
-    display: "flex",
     marginTop: 10,
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
     width: "100%",
-    textAlign: "center",
     height: 76,
     borderBottomColor: "#DEDEDE",
     borderBottomWidth: 1,
   },
   container: {
     alignItems: "center",
-  },
-  overlay: {
-    zIndex: 1000,
-    elevation: 1000,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 20,
+    paddingBottom: 20,
   },
 });
 
-export default Modal;
+export default CustomModal;

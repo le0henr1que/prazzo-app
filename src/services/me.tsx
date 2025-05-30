@@ -76,6 +76,15 @@ export const userInformations = apiSlice.injectEndpoints({
       },
       invalidatesTags: [Tags.USER],
     }),
+    refetchToken: builder.mutation<any, { token: string }>({
+      query: ({ token }) => ({
+        url: "/auth/refresh",
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    }),
   }),
 });
 
@@ -84,4 +93,5 @@ export const {
   useUpdateUserMutation,
   useModifyPasswordMutation,
   useUploadUserFileMutation,
+  useRefetchTokenMutation,
 } = userInformations;

@@ -519,6 +519,7 @@ function LoadingScreen({ navigation, route }: { navigation: any; route: any }) {
   const { registerAndLogin } = useAuth();
 
   const onSubmit = async () => {
+    console.log("Iniciando o registro e login...", params);
     const data = {
       organization_name: params?.storeName,
       isNotification: params?.notifications !== "not",

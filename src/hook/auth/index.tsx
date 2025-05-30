@@ -11,17 +11,23 @@ import {
   useEffect,
   useState,
 } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { apiSlice } from "../../services/http";
-import { useMeQuery } from "../../services/me";
+import { useMeQuery, useRefetchTokenMutation } from "../../services/me";
 import {
   useLoginMutation,
   useRegisterMutation,
   useSocialLoginMutation,
 } from "./slice/auth-api";
-import { clearToken, setToken } from "./slice/auth-slice";
+import {
+  clearToken,
+  setGoogleToken,
+  setToken,
+  setUser,
+} from "./slice/auth-slice";
 
 import { IOS_CLIENT_ID } from "@env";
+import { useSwitchOrganizationMutation } from "../../services/organization";
 
 GoogleSignin.configure({
   iosClientId: IOS_CLIENT_ID,
@@ -29,7 +35,7 @@ GoogleSignin.configure({
 
 interface AuthContextType {
   signIn: (data: { email: string; password: string }) => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
+  signInWithGoogle: () => Promise<{ firstAccess: boolean } | undefined>;
   signOut: () => Promise<void>;
   isAuthenticated: boolean;
   user: any;
@@ -40,6 +46,9 @@ interface AuthContextType {
     notificationInterval: string;
     organization_name: string;
   }) => Promise<void>;
+  switchStore: (storeId: string) => Promise<void>;
+  toGoOnboarding?: boolean;
+  googleToken?: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -48,24 +57,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
   const [socialLogin] = useSocialLoginMutation();
-  const [user, setUser] = useState<any>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [register, { isLoading: isLoadingRegister }] = useRegisterMutation();
-
-  const { data: userDataBase } = useMeQuery();
+  const [switchOrganization, { isLoading: isLoadingSwitch }] =
+    useSwitchOrganizationMutation();
+  const {
+    data: userDataBase,
+    isError,
+    error,
+    refetch: refetchUserData,
+  } = useMeQuery();
   const [load, setLoad] = useState(false);
+  const [refetchToken] = useRefetchTokenMutation();
+  const [toGoOnboarding, setToGoOnboarding] = useState(false);
 
   useEffect(() => {
     const checkAuthentication = async () => {
       setLoad(true);
       try {
         const token = await AsyncStorage.getItem("@vencify:token");
+        console.log("Token from AsyncStorage:", token);
         if (token) {
           dispatch(setToken(token));
           setIsAuthenticated(true);
-          if (userDataBase) {
-            setUser(userDataBase);
-          }
+          await refetchUserData();
+          dispatch(setUser(userDataBase));
         } else {
           setIsAuthenticated(false);
         }
@@ -77,46 +93,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
     checkAuthentication();
-  }, [dispatch, userDataBase]);
+  }, [dispatch, refetchUserData]);
 
-  // useEffect(() => {
-  //   const checkGoogleSignInStatus = async () => {
-  //     setLoad(true);
-  //     try {
-  //       const response = await GoogleSignin.hasPreviousSignIn();
-  //       console.log("Google Sign-In status:", response);
-  //       if (response) {
-  //         const userInfo = await GoogleSignin.signInSilently();
-  //         console.log("User signed in silently:", userInfo);
-  //         setIsAuthenticated(true);
-  //       } else {
-  //         setIsAuthenticated(false);
-  //       }
-  //     } catch (error) {
-  //       setIsAuthenticated(false);
-  //     } finally {
-  //       setLoad(false);
-  //     }
-  //   };
+  useEffect(() => {
+    if (userDataBase) {
+      dispatch(setUser(userDataBase));
+    }
+  }, [userDataBase, dispatch]);
 
-  //   checkGoogleSignInStatus();
-  // }, []);
+  const switchStore = useCallback(
+    async (storeId: string) => {
+      setLoad(true);
+      try {
+        await switchOrganization({ id: storeId }).unwrap();
+        const rtk = await AsyncStorage.getItem("@vencify:refresh_token");
+        const data = await refetchToken({ token: rtk ?? "" }).unwrap();
+        const { accessToken, refreshToken } = data;
+        await AsyncStorage.setItem("@vencify:token", accessToken);
+        await AsyncStorage.setItem("@vencify:refresh_token", refreshToken);
+        dispatch(apiSlice.util.resetApiState());
+        dispatch(setToken(accessToken));
+        await refetchUserData();
+        dispatch(setUser(userDataBase));
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error("Error switching store:", error);
+      } finally {
+        setLoad(false);
+      }
+    },
+    [switchOrganization, dispatch]
+  );
 
   const signIn = useCallback(
     async ({ email, password }: { email: string; password: string }) => {
       setLoad(true);
       try {
         const response = await login({ email, password }).unwrap();
-        const { accessToken, refreshToken, user } = response;
+        const { accessToken, refreshToken } = response;
         await AsyncStorage.setItem("@vencify:token", accessToken);
         await AsyncStorage.setItem("@vencify:refresh_token", refreshToken);
         dispatch(setToken(accessToken));
+        await refetchUserData();
+        dispatch(setUser(userDataBase));
         setIsAuthenticated(true);
       } finally {
         setLoad(false);
       }
     },
-    [login, dispatch]
+    [login, dispatch, refetchUserData]
   );
 
   const registerAndLogin = useCallback(
@@ -133,22 +158,77 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await AsyncStorage.setItem("@vencify:token", accessToken);
         await AsyncStorage.setItem("@vencify:refresh_token", refreshToken);
         dispatch(setToken(accessToken));
+        await refetchUserData();
+        dispatch(setUser(userDataBase));
+
         setIsAuthenticated(true);
       } finally {
         setLoad(false);
       }
     },
-    [login, dispatch]
+    [login, dispatch, refetchUserData]
   );
 
   const signInWithGoogle = useCallback(async () => {
     setLoad(true);
     try {
-      await GoogleSignin.hasPlayServices();
+      const hasProvious = await GoogleSignin.hasPreviousSignIn();
+      if (hasProvious) {
+        console.log("User already signed in with Google");
+        const token = await GoogleSignin.getTokens();
+        const { accessToken } = token;
+        console.log("User signed in silently:", accessToken);
+        const response = await socialLogin({
+          accessToken,
+          provider: "google",
+        }).unwrap();
+        const { accessToken: accessTokenApi, refreshToken } = response;
+
+        if (response.firstAccess) {
+          setToGoOnboarding(true);
+          dispatch(setGoogleToken(accessTokenApi));
+        }
+        if (!response.firstAccess) {
+          await AsyncStorage.setItem("@vencify:token", accessTokenApi);
+          await AsyncStorage.setItem("@vencify:refresh_token", refreshToken);
+          dispatch(setToken(accessTokenApi));
+          await refetchUserData();
+          dispatch(setUser(userDataBase));
+          setIsAuthenticated(true);
+        }
+        return {
+          firstAccess: response.firstAccess,
+          access_token: accessTokenApi,
+        };
+      }
+
       const response = await GoogleSignin.signIn();
       if (isSuccessResponse(response)) {
-        setIsAuthenticated(true);
-        console.log("User signed in:", response.data);
+        const token = await GoogleSignin.getTokens();
+        const { accessToken } = token;
+        const response = await socialLogin({
+          accessToken,
+          provider: "google",
+        }).unwrap();
+        const { accessToken: accessTokenApi, refreshToken } = response;
+
+        if (response.firstAccess) {
+          setToGoOnboarding(true);
+          dispatch(setGoogleToken(accessTokenApi));
+        }
+        if (!response.firstAccess) {
+          await AsyncStorage.setItem("@vencify:token", accessTokenApi);
+          await AsyncStorage.setItem("@vencify:refresh_token", refreshToken);
+          dispatch(setToken(accessTokenApi));
+          await refetchUserData();
+          dispatch(setUser(userDataBase));
+
+          setIsAuthenticated(true);
+        }
+        return {
+          firstAccess: response.firstAccess,
+          access_token: accessTokenApi,
+        };
       }
     } catch (error) {
       console.error("Error during Google Sign-In:", error);
@@ -157,16 +237,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoad(false);
       console.log("Google Sign-In process completed.");
     }
-  }, [dispatch]);
+  }, [refetchUserData]);
 
   const signOut = useCallback(async () => {
     setLoad(true);
     try {
       await AsyncStorage.removeItem("@vencify:token");
       await AsyncStorage.removeItem("@vencify:refresh_token");
+      await GoogleSignin.signOut();
       dispatch(clearToken());
       dispatch(apiSlice.util.resetApiState());
       setUser(null);
+      setToGoOnboarding(false);
       setIsAuthenticated(false);
     } finally {
       setLoad(false);
@@ -179,11 +261,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signIn,
         signInWithGoogle,
         // signInWithFacebook,
+        googleToken: useSelector((state: any) => state.auth.googleToken),
+        switchStore,
         signOut,
         registerAndLogin,
         isAuthenticated,
-        user,
-        isLoading: isLoading || load || isLoadingRegister,
+        toGoOnboarding,
+        user: useSelector((state: any) => state.auth.user),
+        isLoading: isLoading || load || isLoadingRegister || isLoadingSwitch,
       }}
     >
       {children}

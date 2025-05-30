@@ -5,6 +5,7 @@ import { Text } from "react-native";
 import { useState } from "react";
 import { useNotificationsSetup } from "../../hook/use-notification-setup";
 import { useMediaPermissions } from "../../hook/use-media-setup";
+import { useAuth } from "../../hook/auth";
 
 const Stack = createNativeStackNavigator();
 
@@ -17,9 +18,12 @@ function HomeScreen() {
 }
 
 export default function StackPublicRoute() {
+  const { toGoOnboarding } = useAuth();
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Stack.Navigator initialRouteName="on-boarding">
+      <Stack.Navigator
+        initialRouteName={!toGoOnboarding ? "on-boarding" : "Login"}
+      >
         <Stack.Screen
           name="on-boarding"
           component={Screen.OnboardingScreen}

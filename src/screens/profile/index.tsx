@@ -66,8 +66,14 @@ function Profile() {
   }, [user?.avatar]);
 
   useEffect(() => {
-    if (user) {
-      setAvatar(user.avatar ? `${API_URL}${user.avatar}` : null);
+    if (user && user.avatar) {
+      if (user.avatar.startsWith("http")) {
+        setAvatar(user.avatar);
+      } else {
+        setAvatar(`${API_URL}${user.avatar}`);
+      }
+    } else {
+      setAvatar(null);
     }
   }, [user]);
 
@@ -174,7 +180,7 @@ function Profile() {
                   textAlign: "left",
                 }}
               >
-                {roles[user?.roles[0] as never] as never}
+                {roles[user?.roles?.[0] as never] as never}
               </Text>
             </View>
           </View>

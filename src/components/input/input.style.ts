@@ -84,6 +84,6 @@ export const Input = StyleSheet.create({
   inputView: {
     width: "100%",
     display: "flex",
-    gap: 6,
+    gap: 0,
   },
 });

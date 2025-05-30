@@ -12,7 +12,14 @@ export const productInformation = apiSlice.injectEndpoints({
       }),
       providesTags: [Tags.PRODUCT],
     }),
+    getOneProduct: builder.query<any, { id: string }>({
+      query: ({ id }) => ({
+        url: `/product/${id}`,
+        method: "GET",
+      }),
+      providesTags: [Tags.PRODUCT],
+    }),
   }),
 });
 
-export const { useGetProductQuery } = productInformation;
+export const { useGetProductQuery, useGetOneProductQuery } = productInformation;

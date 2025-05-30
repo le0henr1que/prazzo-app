@@ -1,19 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Animated, TouchableOpacity, View, StyleSheet } from "react-native";
 import { colors } from "../../styles/colors";
 
-const CustomSwitch = () => {
-  const [isEnabled, setIsEnabled] = useState(false);
-  const [animatedValue] = useState(new Animated.Value(0)); // Valor animado (posição da bolinha)
+interface CustomSwitchProps {
+  value?: boolean;
+  onValueChange?: (value: boolean) => void;
+}
 
-  // Alterna o estado e a animação
+const CustomSwitch = ({ value, onValueChange }: CustomSwitchProps) => {
+  const [isEnabled, setIsEnabled] = useState(value || false);
+  const [animatedValue] = useState(new Animated.Value(value ? 1 : 0));
+
+  useEffect(() => {
+    if (value !== undefined) {
+      setIsEnabled(value);
+      Animated.timing(animatedValue, {
+        toValue: value ? 1 : 0,
+        duration: 200,
+        useNativeDriver: false,
+      }).start();
+    }
+  }, [value]);
+
   const toggleSwitch = () => {
+    const newValue = !isEnabled;
     Animated.timing(animatedValue, {
-      toValue: isEnabled ? 0 : 1, // Posição: 0 (desligado), 1 (ligado)
-      duration: 200, // Tempo da animação
+      toValue: newValue ? 1 : 0,
+      duration: 200,
       useNativeDriver: false,
     }).start();
-    setIsEnabled(!isEnabled);
+    setIsEnabled(newValue);
+    onValueChange?.(newValue);
   };
 
   return (

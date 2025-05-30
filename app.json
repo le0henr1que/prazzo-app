@@ -48,7 +48,6 @@
     },
     "plugins": [
       "expo-camera",
-      "expo-av",
       [
         "expo-image-picker",
         {

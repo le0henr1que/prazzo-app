@@ -44,9 +44,9 @@ export const loginSlice = createApi({
 
 const baseQuery = fetchBaseQuery({
   baseUrl: API_URL,
-
-  prepareHeaders: async (headers) => {
-    const token = await AsyncStorage.getItem("@vencify:token");
+  prepareHeaders: async (headers, { getState }) => {
+    const state = getState() as any;
+    const token = state.auth.token;
 
     if (token) {
       const ip = await fetchIP();
@@ -73,33 +73,33 @@ const baseQueryWithReauth: BaseQueryFn = async (args, api, extraOptions) => {
       try {
         const refreshToken = AsyncStorage.getItem("@azure:refresh_token");
         console.log(refreshToken);
-        if (refreshToken) {
-          const ip = await fetchIP();
+        // if (refreshToken) {
+        // const ip = await fetchIP();
 
-          const refreshResponse = await fetch(`${API_URL}/auth/refresh`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${refreshToken}`,
-              "x-forwarded-for": ip,
-            },
-          });
-          if (refreshResponse.ok) {
-            const refreshData = await refreshResponse.json();
+        // const refreshResponse = await fetch(`${API_URL}/auth/refresh`, {
+        //   method: "GET",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //     Authorization: `Bearer ${refreshToken}`,
+        //     "x-forwarded-for": ip,
+        //   },
+        // });
+        // if (refreshResponse.ok) {
+        //   const refreshData = await refreshResponse.json();
 
-            AsyncStorage.setItem("@azure:token", refreshData.access_token);
-            AsyncStorage.setItem(
-              "@azure:refresh_token",
-              refreshData.refresh_token
-            );
+        //   AsyncStorage.setItem("@azure:token", refreshData.access_token);
+        //   AsyncStorage.setItem(
+        //     "@azure:refresh_token",
+        //     refreshData.refresh_token
+        //   );
 
-            result = await baseQuery(args, api, extraOptions);
-          } else {
-            api.dispatch({ type: "auth/logout" });
-          }
-        } else {
-          api.dispatch({ type: "auth/logout" });
-        }
+        //   result = await baseQuery(args, api, extraOptions);
+        // } else {
+        //   api.dispatch({ type: "auth/logout" });
+        // }
+        // } else {
+        //   api.dispatch({ type: "auth/logout" });
+        // }
       } catch (error) {
         console.error("Failed to refresh token", error);
         api.dispatch({ type: "auth/logout" });
