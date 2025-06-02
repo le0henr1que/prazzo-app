@@ -295,21 +295,18 @@ const InfoCard: React.FC<InfoCardProps> = ({ title, value }) => {
 };
 
 const StoreInformation = () => {
-  const { user } = useAuth();
-  console.log(user, "User Information:", user);
-  const { data } = useGetOneOrganizationQuery({
-    id: user?.currentOrganizationId || "",
-  });
-  console.log("Store Information Datas dads adas:", data);
+  const { currentStore } = useAuth();
+
   return (
     <View style={styles.information}>
       <View style={styles.informationHeader}>
         <View>
           <Text style={styles.title1}>Você está em:</Text>
-          <Text style={styles.title2}>{data?.name ?? ""}</Text>
+          <Text style={styles.title2}>{(currentStore as any)?.name ?? ""}</Text>
           <Text style={styles.title3}>
-            {data?.address?.street}, {data?.address?.number},
-            {data?.address?.neighborhood}
+            {(currentStore as any)?.address?.street},{" "}
+            {(currentStore as any)?.address?.number},
+            {(currentStore as any)?.address?.neighborhood}
           </Text>
         </View>
         <Avatar uri="https://via.placeholder.com/150" />
@@ -318,21 +315,32 @@ const StoreInformation = () => {
         <View style={styles.contentRow}>
           <InfoCard
             title="Total de produtos"
-            value={data?.metrics?.products?.total.toString() || "0"}
+            value={
+              (currentStore as any)?.metrics?.products?.total.toString() || "0"
+            }
           />
           <InfoCard
             title="Vencidos"
-            value={data?.metrics?.products?.expired.toString() || "0"}
+            value={
+              (currentStore as any)?.metrics?.products?.expired.toString() ||
+              "0"
+            }
           />
         </View>
         <View style={styles.contentRow}>
           <InfoCard
             title="Próximos de vencer"
-            value={data?.metrics?.products?.near_expiration.toString() || "0"}
+            value={
+              (
+                currentStore as any
+              )?.metrics?.products?.near_expiration.toString() || "0"
+            }
           />
           <InfoCard
             title="Membros da loja"
-            value={data?.metrics?.users?.total.toString() || "0"}
+            value={
+              (currentStore as any)?.metrics?.users?.total.toString() || "0"
+            }
           />
         </View>
       </View>

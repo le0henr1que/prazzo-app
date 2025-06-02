@@ -21,13 +21,18 @@ import {
 } from "./slice/auth-api";
 import {
   clearToken,
+  setCurrentStore,
   setGoogleToken,
   setToken,
   setUser,
 } from "./slice/auth-slice";
 
 import { IOS_CLIENT_ID } from "@env";
-import { useSwitchOrganizationMutation } from "../../services/organization";
+import {
+  useGetOneOrganizationQuery,
+  useSwitchOrganizationMutation,
+} from "../../services/organization";
+import messaging from "@react-native-firebase/messaging";
 
 GoogleSignin.configure({
   iosClientId: IOS_CLIENT_ID,
@@ -49,6 +54,7 @@ interface AuthContextType {
   switchStore: (storeId: string) => Promise<void>;
   toGoOnboarding?: boolean;
   googleToken?: string;
+  currentStore?: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -70,6 +76,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [load, setLoad] = useState(false);
   const [refetchToken] = useRefetchTokenMutation();
   const [toGoOnboarding, setToGoOnboarding] = useState(false);
+  const {
+    data: dataStore,
+    isLoading: isLoadingStore,
+    refetch: refetchUserDataStore,
+  } = useGetOneOrganizationQuery({
+    id: userDataBase?.currentOrganizationId || "",
+  });
 
   useEffect(() => {
     const checkAuthentication = async () => {
@@ -77,11 +90,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const token = await AsyncStorage.getItem("@vencify:token");
         console.log("Token from AsyncStorage:", token);
+        const tokenFcm = await messaging().getToken();
+        console.log("FCM Token gerado:", tokenFcm);
         if (token) {
           dispatch(setToken(token));
           setIsAuthenticated(true);
           await refetchUserData();
           dispatch(setUser(userDataBase));
+          dispatch(setCurrentStore(dataStore));
         } else {
           setIsAuthenticated(false);
         }
@@ -99,11 +115,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (userDataBase) {
       dispatch(setUser(userDataBase));
     }
-  }, [userDataBase, dispatch]);
+  }, [userDataBase, dispatch, dataStore]);
+
+  useEffect(() => {
+    if (dataStore) {
+      dispatch(setCurrentStore(dataStore));
+    }
+  }, [dataStore, dispatch]);
 
   const switchStore = useCallback(
     async (storeId: string) => {
       setLoad(true);
+
       try {
         await switchOrganization({ id: storeId }).unwrap();
         const rtk = await AsyncStorage.getItem("@vencify:refresh_token");
@@ -112,9 +135,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await AsyncStorage.setItem("@vencify:token", accessToken);
         await AsyncStorage.setItem("@vencify:refresh_token", refreshToken);
         dispatch(apiSlice.util.resetApiState());
+        dispatch(setUser(null));
+        dispatch(setCurrentStore(null));
         dispatch(setToken(accessToken));
-        await refetchUserData();
-        dispatch(setUser(userDataBase));
+
+        // Refetch dos dados do usuário atualizado
+        const user = await refetchUserData().unwrap();
+        dispatch(setUser(user));
+
+        const orgResponse = await refetchUserDataStore().unwrap();
+        dispatch(setCurrentStore(orgResponse));
+        // Buscar a loja correta usando o novo currentOrganizationId do usuário atualizado
+        if (user?.currentOrganizationId) {
+          const orgResponse = await refetchUserDataStore().unwrap();
+          dispatch(setCurrentStore(orgResponse));
+        }
+
         setIsAuthenticated(true);
       } catch (error) {
         console.error("Error switching store:", error);
@@ -122,7 +158,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoad(false);
       }
     },
-    [switchOrganization, dispatch]
+    [
+      switchOrganization,
+      dispatch,
+      refetchToken,
+      refetchUserData,
+      refetchUserDataStore,
+    ]
   );
 
   const signIn = useCallback(
@@ -136,6 +178,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         dispatch(setToken(accessToken));
         await refetchUserData();
         dispatch(setUser(userDataBase));
+        dispatch(setCurrentStore(dataStore));
         setIsAuthenticated(true);
       } finally {
         setLoad(false);
@@ -160,7 +203,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         dispatch(setToken(accessToken));
         await refetchUserData();
         dispatch(setUser(userDataBase));
-
+        dispatch(setCurrentStore(dataStore));
         setIsAuthenticated(true);
       } finally {
         setLoad(false);
@@ -178,21 +221,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const token = await GoogleSignin.getTokens();
         const { accessToken } = token;
         console.log("User signed in silently:", accessToken);
+
         const response = await socialLogin({
           accessToken,
           provider: "google",
         }).unwrap();
+
         const { accessToken: accessTokenApi, refreshToken } = response;
 
         if (response.firstAccess) {
           setToGoOnboarding(true);
           dispatch(setGoogleToken(accessTokenApi));
         }
+
         if (!response.firstAccess) {
           await AsyncStorage.setItem("@vencify:token", accessTokenApi);
           await AsyncStorage.setItem("@vencify:refresh_token", refreshToken);
+          await refetchUserData();
           dispatch(setToken(accessTokenApi));
-          dispatch(setUser({ name: "Leonardo HHQQ" }));
+          dispatch(setUser(userDataBase));
+          dispatch(setCurrentStore(dataStore));
           setIsAuthenticated(true);
         }
         return {
@@ -202,6 +250,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const response = await GoogleSignin.signIn();
+      console.log("Google Sign-In response:", response);
       if (isSuccessResponse(response)) {
         const token = await GoogleSignin.getTokens();
         const { accessToken } = token;
@@ -214,13 +263,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (response.firstAccess) {
           setToGoOnboarding(true);
           dispatch(setGoogleToken(accessTokenApi));
+          return {
+            firstAccess: response.firstAccess,
+            access_token: accessTokenApi,
+          };
         }
+
         if (!response.firstAccess) {
           await AsyncStorage.setItem("@vencify:token", accessTokenApi);
           await AsyncStorage.setItem("@vencify:refresh_token", refreshToken);
+          await refetchUserData().unwrap();
           dispatch(setToken(accessTokenApi));
-          dispatch(setUser({ name: "Leonardo HHQQ" }));
+          dispatch(setUser(userDataBase));
+          dispatch(setCurrentStore(dataStore));
           setIsAuthenticated(true);
+          setToGoOnboarding(false);
+          return {
+            firstAccess: response.firstAccess,
+            access_token: accessTokenApi,
+          };
         }
         return {
           firstAccess: response.firstAccess,
@@ -244,7 +305,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await GoogleSignin.signOut();
       dispatch(clearToken());
       dispatch(apiSlice.util.resetApiState());
-      setUser(null);
+      dispatch(setUser(null));
+      dispatch(setCurrentStore(null));
+
       setToGoOnboarding(false);
       setIsAuthenticated(false);
     } finally {
@@ -262,10 +325,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         switchStore,
         signOut,
         registerAndLogin,
+        currentStore: useSelector((state: any) => state.auth.currentStore),
         isAuthenticated,
         toGoOnboarding,
         user: useSelector((state: any) => state.auth.user),
-        isLoading: isLoading || load || isLoadingRegister || isLoadingSwitch,
+        isLoading:
+          isLoading ||
+          load ||
+          isLoadingRegister ||
+          isLoadingSwitch ||
+          isLoadingStore,
       }}
     >
       {children}

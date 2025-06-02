@@ -1,4 +1,4 @@
-package com.le0henr1que.appvalist.android
+package com.le0henr1que.app
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build
