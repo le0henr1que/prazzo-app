@@ -41,5 +41,5 @@ export const {
   useGetOrganizationsQuery,
   useCreateOrganizationMutation,
   useSwitchOrganizationMutation,
-  useLazyGetOneOrganizationQuery, // adicione esta linha
+  useLazyGetOneOrganizationQuery,
 } = organizationInformation;
