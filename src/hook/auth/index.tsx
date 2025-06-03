@@ -39,7 +39,7 @@ GoogleSignin.configure({
 });
 
 interface AuthContextType {
-  signIn: (data: { email: string; password: string }) => Promise<void>;
+  signIn: () => Promise<void>;
   signInWithGoogle: () => Promise<{ firstAccess: boolean } | undefined>;
   signOut: () => Promise<void>;
   isAuthenticated: boolean;
@@ -55,6 +55,7 @@ interface AuthContextType {
   toGoOnboarding?: boolean;
   googleToken?: string;
   currentStore?: string;
+  setAuthenticated?: (value: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -109,19 +110,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
     checkAuthentication();
-  }, [dispatch, refetchUserData]);
+  }, [setToken]);
 
   useEffect(() => {
     if (userDataBase) {
       dispatch(setUser(userDataBase));
     }
-  }, [userDataBase, dispatch, dataStore]);
+  }, [userDataBase, dispatch, dataStore, setToken]);
 
   useEffect(() => {
     if (dataStore) {
       dispatch(setCurrentStore(dataStore));
     }
-  }, [dataStore, dispatch]);
+  }, [dataStore, dispatch, setToken]);
 
   const switchStore = useCallback(
     async (storeId: string) => {
@@ -134,22 +135,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { accessToken, refreshToken } = data;
         await AsyncStorage.setItem("@vencify:token", accessToken);
         await AsyncStorage.setItem("@vencify:refresh_token", refreshToken);
-        dispatch(apiSlice.util.resetApiState());
-        dispatch(setUser(null));
-        dispatch(setCurrentStore(null));
-        dispatch(setToken(accessToken));
 
-        // Refetch dos dados do usuário atualizado
         const user = await refetchUserData().unwrap();
         dispatch(setUser(user));
-
         const orgResponse = await refetchUserDataStore().unwrap();
         dispatch(setCurrentStore(orgResponse));
-        // Buscar a loja correta usando o novo currentOrganizationId do usuário atualizado
-        if (user?.currentOrganizationId) {
-          const orgResponse = await refetchUserDataStore().unwrap();
-          dispatch(setCurrentStore(orgResponse));
-        }
 
         setIsAuthenticated(true);
       } catch (error) {
@@ -167,25 +157,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     ]
   );
 
-  const signIn = useCallback(
-    async ({ email, password }: { email: string; password: string }) => {
-      setLoad(true);
-      try {
-        const response = await login({ email, password }).unwrap();
-        const { accessToken, refreshToken } = response;
-        await AsyncStorage.setItem("@vencify:token", accessToken);
-        await AsyncStorage.setItem("@vencify:refresh_token", refreshToken);
-        dispatch(setToken(accessToken));
-        await refetchUserData();
-        dispatch(setUser(userDataBase));
-        dispatch(setCurrentStore(dataStore));
-        setIsAuthenticated(true);
-      } finally {
-        setLoad(false);
-      }
-    },
-    [login, dispatch, refetchUserData]
-  );
+  const signIn = useCallback(async () => {
+    setLoad(true);
+    try {
+      setIsAuthenticated(true);
+      console.log("Attempting to sign in...");
+      const user = await refetchUserData().unwrap();
+      dispatch(setUser(user));
+      const orgResponse = await refetchUserDataStore().unwrap();
+      dispatch(setCurrentStore(orgResponse));
+    } catch (errro) {
+      console.error("Error during sign-in:", errro);
+      setIsAuthenticated(false);
+      throw error;
+    } finally {
+      setLoad(false);
+    }
+  }, []);
 
   const registerAndLogin = useCallback(
     async (data: {
@@ -201,9 +189,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await AsyncStorage.setItem("@vencify:token", accessToken);
         await AsyncStorage.setItem("@vencify:refresh_token", refreshToken);
         dispatch(setToken(accessToken));
-        await refetchUserData();
-        dispatch(setUser(userDataBase));
-        dispatch(setCurrentStore(dataStore));
+        const user = await refetchUserData().unwrap();
+        dispatch(setUser(user));
+        const orgResponse = await refetchUserDataStore().unwrap();
+        dispatch(setCurrentStore(orgResponse));
         setIsAuthenticated(true);
       } finally {
         setLoad(false);
@@ -237,10 +226,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!response.firstAccess) {
           await AsyncStorage.setItem("@vencify:token", accessTokenApi);
           await AsyncStorage.setItem("@vencify:refresh_token", refreshToken);
-          await refetchUserData();
           dispatch(setToken(accessTokenApi));
-          dispatch(setUser(userDataBase));
-          dispatch(setCurrentStore(dataStore));
+          setToGoOnboarding(false);
+          const user = await refetchUserData().unwrap();
+          dispatch(setUser(user));
+          const orgResponse = await refetchUserDataStore().unwrap();
+          dispatch(setCurrentStore(orgResponse));
           setIsAuthenticated(true);
         }
         return {
@@ -272,12 +263,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!response.firstAccess) {
           await AsyncStorage.setItem("@vencify:token", accessTokenApi);
           await AsyncStorage.setItem("@vencify:refresh_token", refreshToken);
-          await refetchUserData().unwrap();
           dispatch(setToken(accessTokenApi));
-          dispatch(setUser(userDataBase));
-          dispatch(setCurrentStore(dataStore));
-          setIsAuthenticated(true);
           setToGoOnboarding(false);
+          const user = await refetchUserData().unwrap();
+          dispatch(setUser(user));
+          const orgResponse = await refetchUserDataStore().unwrap();
+          dispatch(setCurrentStore(orgResponse));
+          setIsAuthenticated(true);
           return {
             firstAccess: response.firstAccess,
             access_token: accessTokenApi,
@@ -321,6 +313,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signIn,
         signInWithGoogle,
         // signInWithFacebook,
+        setAuthenticated: setIsAuthenticated,
         googleToken: useSelector((state: any) => state.auth.googleToken),
         switchStore,
         signOut,

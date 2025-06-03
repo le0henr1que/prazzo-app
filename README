@@ -8,5 +8,6 @@ gradlew assembleRelease
 
 gerar apk
 cd android
-./gradlew assembleDebug -PabiFilters=arm64-v8a
-./gradlew assembleRelease -PabiFilters=arm64-v8a
+
+ESSE COMANDO GERA UM APK NOVO
+cd android && ./gradlew assembleDebug -PabiFilters=arm64-v8a && ./gradlew assembleRelease -PabiFilters=arm64-v8a

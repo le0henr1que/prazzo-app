@@ -24,18 +24,23 @@ import { styles } from "./login.styles";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ScreensType } from "../index.screens";
 import { set } from "lodash";
+import { useLoginMutation } from "../../hook/auth/slice/auth-api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { setToken } from "../../hook/auth/slice/auth-slice";
+import { useDispatch } from "react-redux";
 
 export default function Login() {
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<ScreensType>>();
   const { handleNotification } = useDialogNotification();
+  const dispatch = useDispatch();
 
   const {
     signIn,
     signInWithGoogle,
     isAuthenticated,
     user,
-    isLoading,
+    // isLoading,
     toGoOnboarding,
     googleToken,
   } = useAuth();
@@ -83,15 +88,24 @@ export default function Login() {
       });
     }
   };
+  const [login, { isLoading }] = useLoginMutation();
 
   const onSubmit = async (data: any) => {
     try {
-      await signIn({
+      const response = await login({
         email: data?.email || "",
         password: data?.password || "",
-      });
+      }).unwrap();
+      const { accessToken, refreshToken } = response;
+      console.log("Login response:", response);
+      await AsyncStorage.setItem("@vencify:token", accessToken);
+      await AsyncStorage.setItem("@vencify:refresh_token", refreshToken);
+      dispatch(setToken(accessToken));
+
+      await signIn();
       // Remova: navigation.navigate("Home");
     } catch (e: any) {
+      console.error("Login error:", e);
       if (e.data?.statusCode === 401) {
         setError("email", {
           type: "manual",
@@ -104,7 +118,8 @@ export default function Login() {
         variant: "error",
         title: "Falha no acesso",
         message:
-          "Ocorreu um erro ao tentar acessar o app. Tente novamente mais tarde.",
+          e.data?.messages.join(", ") ||
+          "Ocorreu um erro ao tentar acessar o app.",
       });
     }
   };
@@ -226,7 +241,7 @@ export default function Login() {
                   size="large"
                   isLoading={isLoading}
                   onPress={handleSubmit(onSubmit)}
-                  disabled={Object.keys(errors).length > 0 || !isFormValid()}
+                  disabled={!isFormValid()}
                 >
                   Entrar
                 </Button>

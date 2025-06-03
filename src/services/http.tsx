@@ -52,6 +52,7 @@ const baseQuery = fetchBaseQuery({
       const ip = await fetchIP();
       headers.set("x-forwarded-for", ip);
       headers.set("Authorization", `Bearer ${token}`);
+      console.log(" `Bearer ${token}`:", `Bearer ${token}`);
     }
 
     return headers;
