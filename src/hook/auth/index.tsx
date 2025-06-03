@@ -33,6 +33,7 @@ import {
   useSwitchOrganizationMutation,
 } from "../../services/organization";
 import messaging from "@react-native-firebase/messaging";
+import { useSaveFcmTokenMutation } from "../../services/notification";
 
 GoogleSignin.configure({
   iosClientId: IOS_CLIENT_ID,
@@ -68,6 +69,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [register, { isLoading: isLoadingRegister }] = useRegisterMutation();
   const [switchOrganization, { isLoading: isLoadingSwitch }] =
     useSwitchOrganizationMutation();
+  const [saveFcmToken, { isLoading: isLoadingFcmToken }] =
+    useSaveFcmTokenMutation();
   const {
     data: userDataBase,
     isError,
@@ -124,38 +127,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [dataStore, dispatch, setToken]);
 
-  const switchStore = useCallback(
-    async (storeId: string) => {
-      setLoad(true);
+  const switchStore = useCallback(async (storeId: string) => {
+    setLoad(true);
 
-      try {
-        await switchOrganization({ id: storeId }).unwrap();
-        const rtk = await AsyncStorage.getItem("@vencify:refresh_token");
-        const data = await refetchToken({ token: rtk ?? "" }).unwrap();
-        const { accessToken, refreshToken } = data;
-        await AsyncStorage.setItem("@vencify:token", accessToken);
-        await AsyncStorage.setItem("@vencify:refresh_token", refreshToken);
+    try {
+      await switchOrganization({ id: storeId }).unwrap();
+      const rtk = await AsyncStorage.getItem("@vencify:refresh_token");
+      const data = await refetchToken({ token: rtk ?? "" }).unwrap();
+      const { accessToken, refreshToken } = data;
+      await AsyncStorage.setItem("@vencify:token", accessToken);
+      await AsyncStorage.setItem("@vencify:refresh_token", refreshToken);
 
-        const user = await refetchUserData().unwrap();
-        dispatch(setUser(user));
-        const orgResponse = await refetchUserDataStore().unwrap();
-        dispatch(setCurrentStore(orgResponse));
+      const user = await refetchUserData().unwrap();
+      console.log("User after switching store:", user);
+      dispatch(setUser(user));
 
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.error("Error switching store:", error);
-      } finally {
-        setLoad(false);
-      }
-    },
-    [
-      switchOrganization,
-      dispatch,
-      refetchToken,
-      refetchUserData,
-      refetchUserDataStore,
-    ]
-  );
+      // Busque a organização correta usando o novo currentOrganizationId
+      const orgResponse = await getOrganization(
+        user.currentOrganizationId
+      ).unwrap();
+      dispatch(setCurrentStore(orgResponse));
+
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error("Error switching store:", error);
+    } finally {
+      setLoad(false);
+    }
+  }, []);
 
   const signIn = useCallback(async () => {
     setLoad(true);
@@ -165,6 +164,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const user = await refetchUserData().unwrap();
       dispatch(setUser(user));
       const orgResponse = await refetchUserDataStore().unwrap();
+      const fcmToken = await messaging().getToken();
+      await saveFcmToken({ fcmToken }).unwrap();
       dispatch(setCurrentStore(orgResponse));
     } catch (errro) {
       console.error("Error during sign-in:", errro);
@@ -189,10 +190,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await AsyncStorage.setItem("@vencify:token", accessToken);
         await AsyncStorage.setItem("@vencify:refresh_token", refreshToken);
         dispatch(setToken(accessToken));
+
         const user = await refetchUserData().unwrap();
         dispatch(setUser(user));
         const orgResponse = await refetchUserDataStore().unwrap();
         dispatch(setCurrentStore(orgResponse));
+
+        const fcmToken = await messaging().getToken();
+        console.log("FCM Token gerado no login com ogoo:", fcmToken);
+        await saveFcmToken({ fcmToken }).unwrap();
         setIsAuthenticated(true);
       } finally {
         setLoad(false);
@@ -254,6 +260,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (response.firstAccess) {
           setToGoOnboarding(true);
           dispatch(setGoogleToken(accessTokenApi));
+
           return {
             firstAccess: response.firstAccess,
             access_token: accessTokenApi,
@@ -270,6 +277,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const orgResponse = await refetchUserDataStore().unwrap();
           dispatch(setCurrentStore(orgResponse));
           setIsAuthenticated(true);
+          const fcmToken = await messaging().getToken();
+          console.log("FCM Token gerado no login com ogoo:", fcmToken);
+          await saveFcmToken({ fcmToken }).unwrap();
           return {
             firstAccess: response.firstAccess,
             access_token: accessTokenApi,
@@ -307,6 +317,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [dispatch]);
 
+  const googleToken = useSelector((state: any) => state.auth.googleToken);
+  const currentStore = useSelector((state: any) => state.auth.currentStore);
+  const user = useSelector((state: any) => state.auth.user);
+
+  const isLoadingMath =
+    isLoading ||
+    load ||
+    isLoadingRegister ||
+    isLoadingSwitch ||
+    isLoadingStore ||
+    isLoadingFcmToken;
+
   return (
     <AuthContext.Provider
       value={{
@@ -314,20 +336,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signInWithGoogle,
         // signInWithFacebook,
         setAuthenticated: setIsAuthenticated,
-        googleToken: useSelector((state: any) => state.auth.googleToken),
+        googleToken,
         switchStore,
         signOut,
         registerAndLogin,
-        currentStore: useSelector((state: any) => state.auth.currentStore),
+        currentStore,
         isAuthenticated,
         toGoOnboarding,
-        user: useSelector((state: any) => state.auth.user),
-        isLoading:
-          isLoading ||
-          load ||
-          isLoadingRegister ||
-          isLoadingSwitch ||
-          isLoadingStore,
+        user,
+        isLoading: isLoadingMath,
       }}
     >
       {children}

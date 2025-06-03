@@ -295,8 +295,14 @@ const InfoCard: React.FC<InfoCardProps> = ({ title, value }) => {
 };
 
 const StoreInformation = () => {
-  const { currentStore } = useAuth();
-
+  const { user } = useAuth();
+  const {
+    data: currentStore,
+    isLoading: isLoadingStore,
+    refetch: refetchUserDataStore,
+  } = useGetOneOrganizationQuery({
+    id: user?.currentOrganizationId || "",
+  });
   return (
     <View style={styles.information}>
       <View style={styles.informationHeader}>

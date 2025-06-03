@@ -1,4 +1,5 @@
 import { loginSlice } from "../../../services/http";
+import { Tags } from "../../../utils/tags";
 
 export const authApi = loginSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -62,6 +63,7 @@ export const authApi = loginSlice.injectEndpoints({
         method: "POST",
         body: body,
       }),
+      invalidatesTags: [Tags.ORGANIZATION, Tags.USER, Tags.PRODUCT, Tags.BATCH],
     }),
   }),
 

@@ -94,4 +94,5 @@ export const {
   useModifyPasswordMutation,
   useUploadUserFileMutation,
   useRefetchTokenMutation,
+  useLazyMeQuery,
 } = userInformations;

@@ -31,7 +31,7 @@ export const organizationInformation = apiSlice.injectEndpoints({
         url: `/organization/switch/${id}`,
         method: "POST",
       }),
-      invalidatesTags: [Tags.ORGANIZATION],
+      invalidatesTags: [Tags.ORGANIZATION, Tags.USER, Tags.PRODUCT, Tags.BATCH],
     }),
   }),
 });
@@ -41,4 +41,5 @@ export const {
   useGetOrganizationsQuery,
   useCreateOrganizationMutation,
   useSwitchOrganizationMutation,
+  useLazyGetOneOrganizationQuery, // adicione esta linha
 } = organizationInformation;
