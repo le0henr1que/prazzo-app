@@ -65,6 +65,15 @@ export const authApi = loginSlice.injectEndpoints({
       }),
       invalidatesTags: [Tags.ORGANIZATION, Tags.USER, Tags.PRODUCT, Tags.BATCH],
     }),
+    refetchToken: builder.mutation<any, { token: string }>({
+      query: ({ token }) => ({
+        url: "/auth/refresh",
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    }),
   }),
 
   overrideExisting: true,
@@ -79,4 +88,5 @@ export const {
   useVerifyMutation,
   useRegisterMutation,
   useVerifyByPasswordMutation,
+  useRefetchTokenMutation,
 } = authApi;

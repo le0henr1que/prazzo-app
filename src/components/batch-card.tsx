@@ -87,7 +87,7 @@ const BatchCard = ({ batch }: any) => {
                   <Text style={styles.text}>
                     Data de validade:{" "}
                     {batch?.expires_at
-                      ? formatDate(batch?.expires_at)
+                      ? formatDate(batch?.expires_at, "dd/MM/yyyy")
                       : "Sem data"}
                   </Text>
                 </View>

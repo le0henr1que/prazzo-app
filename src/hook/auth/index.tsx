@@ -13,9 +13,10 @@ import {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { apiSlice } from "../../services/http";
-import { useMeQuery, useRefetchTokenMutation } from "../../services/me";
+import { useMeQuery } from "../../services/me";
 import {
   useLoginMutation,
+  useRefetchTokenMutation,
   useRegisterMutation,
   useSocialLoginMutation,
 } from "./slice/auth-api";
@@ -34,6 +35,7 @@ import {
 } from "../../services/organization";
 import messaging from "@react-native-firebase/messaging";
 import { useSaveFcmTokenMutation } from "../../services/notification";
+import { Tags } from "../../utils/tags";
 
 GoogleSignin.configure({
   iosClientId: IOS_CLIENT_ID,
@@ -133,19 +135,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await switchOrganization({ id: storeId }).unwrap();
       const rtk = await AsyncStorage.getItem("@vencify:refresh_token");
+      console.log(
+        "Refresh Token from AsyncStorage---------------------:",
+        rtk ?? ""
+      );
       const data = await refetchToken({ token: rtk ?? "" }).unwrap();
       const { accessToken, refreshToken } = data;
       await AsyncStorage.setItem("@vencify:token", accessToken);
       await AsyncStorage.setItem("@vencify:refresh_token", refreshToken);
+      dispatch(setToken(accessToken));
 
       const user = await refetchUserData().unwrap();
       console.log("User after switching store:", user);
       dispatch(setUser(user));
+      dispatch(apiSlice.util.invalidateTags([Tags.BATCH, Tags.PRODUCT]));
 
       // Busque a organização correta usando o novo currentOrganizationId
-      const orgResponse = await getOrganization(
-        user.currentOrganizationId
-      ).unwrap();
+      const orgResponse = await refetchUserDataStore().unwrap();
+      console.log("Organization after switching store:", orgResponse);
       dispatch(setCurrentStore(orgResponse));
 
       setIsAuthenticated(true);

@@ -9,14 +9,6 @@ import { useAuth } from "../../hook/auth";
 
 const Stack = createNativeStackNavigator();
 
-function HomeScreen() {
-  const [fcmToken, setFcmToken] = useState<string | null>(null);
-  useNotificationsSetup(setFcmToken);
-  console.log("FCM Token:", fcmToken);
-
-  return <Text>Home Screen: {fcmToken}</Text>;
-}
-
 export default function StackPublicRoute() {
   const { toGoOnboarding } = useAuth();
   return (
