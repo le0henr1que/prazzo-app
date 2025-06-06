@@ -23,53 +23,54 @@ export function OptionsInput({ options, errors, onChange, ...props }: any) {
     handleModal({
       isOpen: true,
       element: (
-        <View style={{ paddingVertical: 16, width: "100%" }}>
-          <ScrollView
-            style={{
-              maxHeight: 200,
-              marginTop: 16,
-              marginBottom: 16,
-              width: "100%",
-            }}
-          >
-            {options?.map((option: any) => (
-              <TouchableOpacity
-                key={option?.id}
-                style={{
-                  paddingVertical: 12,
-                  paddingHorizontal: 36,
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "flex-start",
-                  alignItems: "flex-start",
-                  width: "100%",
-                  borderBottomColor: "#E5E7EB",
-                  borderBottomWidth: 0.5,
-                }}
-                onPress={() => {
-                  setOptionSeted(option);
-                  handleModal({ isOpen: false });
-                  if (onChange) {
-                    onChange(option.id);
-                  }
-                }}
-              >
-                <Text
-                  style={{
-                    color: "#111827",
-                    fontFamily: "Inter",
-                    fontSize: 16,
-                    fontStyle: "normal",
-                    fontWeight: 500,
-                    lineHeight: 24,
-                  }}
-                >
-                  {option?.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
+        <Text>Teste</Text>
+        // <View style={{ paddingVertical: 16, width: "100%" }}>
+        //   <ScrollView
+        //     style={{
+        //       maxHeight: 200,
+        //       marginTop: 16,
+        //       marginBottom: 16,
+        //       width: "100%",
+        //     }}
+        //   >
+        //     {options?.map((option: any) => (
+        //       <TouchableOpacity
+        //         key={option?.id}
+        //         style={{
+        //           paddingVertical: 12,
+        //           paddingHorizontal: 36,
+        //           display: "flex",
+        //           flexDirection: "column",
+        //           justifyContent: "flex-start",
+        //           alignItems: "flex-start",
+        //           width: "100%",
+        //           borderBottomColor: "#E5E7EB",
+        //           borderBottomWidth: 0.5,
+        //         }}
+        //         onPress={() => {
+        //           setOptionSeted(option);
+        //           handleModal({ isOpen: false });
+        //           if (onChange) {
+        //             onChange(option.id);
+        //           }
+        //         }}
+        //       >
+        //         <Text
+        //           style={{
+        //             color: "#111827",
+        //             fontFamily: "Inter",
+        //             fontSize: 16,
+        //             fontStyle: "normal",
+        //             fontWeight: 500,
+        //             lineHeight: 24,
+        //           }}
+        //         >
+        //           {option?.label}
+        //         </Text>
+        //       </TouchableOpacity>
+        //     ))}
+        //   </ScrollView>
+        // </View>
       ),
     });
   };

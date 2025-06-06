@@ -4,9 +4,10 @@ import { typography } from "../../styles/typography";
 type TypographyVariant = "XS" | "SM" | "BASE" | "LG" | "XL" | "2XL" | "3XL";
 
 interface TypographyProps extends TextProps {
-  variant?: TypographyVariant;
-  family?: keyof typeof typography.fontFamily;
+  variant: TypographyVariant;
+  family: keyof typeof typography.fontFamily;
   style?: object;
+  color?: any;
   children: React.ReactNode;
 }
 
@@ -46,13 +47,14 @@ const Typography = ({
   family,
   style,
   children,
+  color,
   ...props
 }: TypographyProps) => {
   const variantConfig = variantStyles[variant];
 
   const fontFamilyStyle = family
-    ? { fontFamily: typography.fontFamily[family] }
-    : {};
+    ? { fontFamily: typography.fontFamily[family], color: color ?? "#000" }
+    : { color: color ?? "#000" };
 
   return (
     <Text style={[variantConfig, fontFamilyStyle, style]} {...props}>

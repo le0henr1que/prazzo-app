@@ -58,6 +58,7 @@ export const authApi = loginSlice.injectEndpoints({
         isNotification: boolean;
         notificationInterval: string;
         organization_name: string;
+        notification_token: string;
       }) => ({
         url: "/auth/register",
         method: "POST",

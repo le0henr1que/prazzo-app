@@ -31,6 +31,8 @@ import { Input } from "../../components/input/input.style";
 import { useRegisterMutation } from "../../hook/auth/slice/auth-api";
 import { setToken } from "../../hook/auth/slice/auth-slice";
 import { useAuth } from "../../hook/auth";
+import SwitchStoreLoad from "../../components/switch-store-load";
+import messaging from "@react-native-firebase/messaging";
 
 const Stack = createNativeStackNavigator();
 
@@ -514,17 +516,21 @@ function ExpirationScreen({
 }
 
 // Tela 4: Carregando
-function LoadingScreen({ navigation, route }: { navigation: any; route: any }) {
+export function RedirectTo() {
+  const route = useRoute();
   const { params } = route;
   const { registerAndLogin } = useAuth();
 
   const onSubmit = async () => {
     console.log("Iniciando o registro e login...", params);
+    const fcmToken = await messaging().getToken();
+
     const data = {
-      organization_name: params?.storeName,
-      isNotification: params?.notifications !== "not",
-      notificationInterval: params?.amount,
-      access_token: params?.access_token,
+      organization_name: "Primeira Loja",
+      isNotification: true,
+      notificationInterval: NotificationTimeEnum.DAILY,
+      access_token: (params as any)?.access_token,
+      notification_token: fcmToken,
     };
     try {
       await registerAndLogin(data);
@@ -538,62 +544,39 @@ function LoadingScreen({ navigation, route }: { navigation: any; route: any }) {
     onSubmit();
   }, []);
 
-  return (
-    <View
-      style={{
-        flex: 1,
-        padding: 15,
-        paddingTop: 60,
-        paddingBottom: 60,
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}
-    >
-      <View>
-        <CustomIcon />
-      </View>
-      <View>
-        <LoadingIcon1 />
-      </View>
-      <View>
-        <Text style={styles.loadingText}>
-          Tudo pronto! {"\n"}Estamos configurando sua conta...
-        </Text>
-      </View>
-    </View>
-  );
+  return <SwitchStoreLoad />;
 }
 
-export default function StoreRegistrationFlow() {
-  const formMethods = useForm();
-  const route = useRoute();
+// export default function StoreRegistrationFlow() {
+//   const formMethods = useForm();
+//   const route = useRoute();
 
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Objective">
-        {(props) => <ObjectiveScreen {...props} formMethods={formMethods} />}
-      </Stack.Screen>
-      <Stack.Screen name="Establishment">
-        {(props) => (
-          <EstablishmentScreen
-            {...props}
-            formMethods={formMethods}
-            route={route.params}
-          />
-        )}
-      </Stack.Screen>
-      <Stack.Screen name="Notifications">
-        {(props) => (
-          <NotificationsScreen {...props} formMethods={formMethods} />
-        )}
-      </Stack.Screen>
-      <Stack.Screen name="Expiration">
-        {(props) => <ExpirationScreen {...props} formMethods={formMethods} />}
-      </Stack.Screen>
-      <Stack.Screen name="Loading" component={LoadingScreen} />
-    </Stack.Navigator>
-  );
-}
+//   return (
+//     <Stack.Navigator screenOptions={{ headerShown: false }}>
+//       <Stack.Screen name="Objective">
+//         {(props) => <ObjectiveScreen {...props} formMethods={formMethods} />}
+//       </Stack.Screen>
+//       <Stack.Screen name="Establishment">
+//         {(props) => (
+//           <EstablishmentScreen
+//             {...props}
+//             formMethods={formMethods}
+//             route={route.params}
+//           />
+//         )}
+//       </Stack.Screen>
+//       <Stack.Screen name="Notifications">
+//         {(props) => (
+//           <NotificationsScreen {...props} formMethods={formMethods} />
+//         )}
+//       </Stack.Screen>
+//       <Stack.Screen name="Expiration">
+//         {(props) => <ExpirationScreen {...props} formMethods={formMethods} />}
+//       </Stack.Screen>
+//       <Stack.Screen name="Loading" component={LoadingScreen} />
+//     </Stack.Navigator>
+//   );
+// }
 
 const styles = StyleSheet.create({
   container: {

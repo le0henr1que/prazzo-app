@@ -38,7 +38,7 @@ export default function StackPublicRoute() {
         />
         <Stack.Screen
           name="StoreRegistrationFlow"
-          component={Screen.StoreRegistrationFlow}
+          component={Screen.LoadingScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

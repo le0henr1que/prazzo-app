@@ -40,7 +40,7 @@ export default function Login() {
     signInWithGoogle,
     isAuthenticated,
     user,
-    // isLoading,
+    isLoading,
     toGoOnboarding,
     googleToken,
   } = useAuth();
@@ -88,7 +88,7 @@ export default function Login() {
       });
     }
   };
-  const [login, { isLoading }] = useLoginMutation();
+  const [login, { isLoading: isLoadingLoginNormal }] = useLoginMutation();
 
   const onSubmit = async (data: any) => {
     try {
@@ -239,7 +239,7 @@ export default function Login() {
                 <Button
                   type="fill"
                   size="large"
-                  isLoading={isLoading}
+                  isLoading={isLoading || isLoadingLoginNormal}
                   onPress={handleSubmit(onSubmit)}
                   disabled={!isFormValid()}
                 >
@@ -314,7 +314,7 @@ export default function Login() {
                     color: colors.neutral["500"],
                   }}
                 >
-                  Não possui conta?{" "}
+                  Não possui conta?
                   <Typography
                     onPress={() => navigation.navigate("Register")}
                     variant="XS"

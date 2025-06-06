@@ -34,8 +34,8 @@ export const Input = StyleSheet.create({
     paddingHorizontal: 16,
     borderWidth: 1,
     borderRadius: 8,
-    borderColor: colors.danger["500"],
-    backgroundColor: colors.danger["50"],
+    borderColor: colors.danger.default,
+    backgroundColor: colors.danger.default,
     fontSize: typography.size.base,
     lineHeight: typography.lineHeight.base,
     color: colors.neutral["900"],
@@ -54,10 +54,10 @@ export const Input = StyleSheet.create({
     color: colors.neutral["900"],
   },
   inputError: {
-    borderColor: colors.danger["500"],
+    borderColor: colors.danger.default,
   },
   inputFocused: {
-    borderColor: colors.primary["500"],
+    borderColor: colors.brand.default,
   },
   inputPassword: {
     width: "100%",
@@ -73,12 +73,12 @@ export const Input = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "500",
-    color: colors.neutral["700"],
+    color: colors.neutral[7],
     marginBottom: 8,
   },
   errorText: {
     fontSize: 12,
-    color: colors.danger["500"],
+    color: colors.danger.default,
     marginTop: 4,
   },
   inputView: {

@@ -41,8 +41,15 @@ export const CustomInput: React.FC<CustomInputProps> = ({
   };
 
   const inputVariant: any = {
-    date: () => <DataPicker errors={errors} {...props} />,
-    option: () => <OptionsInput {...props} errors={errors} options={options} />,
+    date: () => <DataPicker errors={errors} {...props} onChange={onChange} />,
+    option: () => (
+      <OptionsInput
+        {...props}
+        errors={errors}
+        options={options}
+        onChange={onChange}
+      />
+    ),
     normal: () => (
       <TextInput
         style={[

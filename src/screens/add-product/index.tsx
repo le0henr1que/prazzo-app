@@ -4,7 +4,9 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { format, parse } from "date-fns";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
 import { TextInput } from "react-native-gesture-handler";
 import { useToast } from "react-native-toast-notifications";
 import { useCreateBatchMutation } from "../../services/batch";
@@ -35,7 +37,8 @@ function AddProduct() {
     watch,
     setValue,
   } = useForm();
-
+  const all = watch();
+  console.log("all", all);
   const date = watch("validate");
   const place = watch("place");
   const qtdItems = watch("qtdItems");
@@ -137,237 +140,239 @@ function AddProduct() {
   }));
   console.log(filters);
   return (
-    <SafeAreaView style={styles.container}>
-      <Header productInformation={productInformation} />
-      <View style={styles.insideContainer}>
-        <CardWatingDate
-          product={{
-            ...productInformation,
-            date,
-            place,
-            qtdItems,
-            price,
-            name,
-            imageUrl: productInformation?.imageUrl ?? filters?.imageUrl,
-          }}
-        />
-        <ScrollView
-          contentContainerStyle={styles.scrollViewContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.formContainer}>
-            <View style={styles.formContainerLine}>
-              <View style={(Input.inputView, styles.inputWrapper)}>
-                <Text style={Input.label}>Nome do produto</Text>
-                <Controller
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      style={errors.name ? Input.styleError : Input.style}
-                      placeholder="Nome do produto"
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                    />
+    <View style={{ flex: 1, backgroundColor: "#fff" }}>
+      <SafeAreaView style={styles.container} edges={["top"]}>
+        <Header productInformation={productInformation} />
+        <View style={styles.insideContainer}>
+          <CardWatingDate
+            product={{
+              ...productInformation,
+              date: date || "",
+              place,
+              qtdItems,
+              price,
+              name,
+              imageUrl: productInformation?.imageUrl ?? filters?.imageUrl,
+            }}
+          />
+          <ScrollView
+            contentContainerStyle={styles.scrollViewContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.formContainer}>
+              <View style={styles.formContainerLine}>
+                <View style={(Input.inputView, styles.inputWrapper)}>
+                  <Text style={Input.label}>Nome do produto</Text>
+                  <Controller
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <TextInput
+                        style={errors.name ? Input.styleError : Input.style}
+                        placeholder="Nome do produto"
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                      />
+                    )}
+                    name="name"
+                  />
+                  {errors.name && (
+                    <Text style={Input.errorText}>Lote é obrigatório</Text>
                   )}
-                  name="name"
-                />
-                {errors.name && (
-                  <Text style={Input.errorText}>Lote é obrigatório</Text>
-                )}
+                </View>
               </View>
-            </View>
-            <View style={styles.formContainerLine}>
-              <View style={(Input.inputView, styles.inputWrapper)}>
-                <Text style={Input.label}>Código</Text>
-                <Controller
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      style={errors.code ? Input.styleError : Input.style}
-                      placeholder="Código do produto"
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                    />
+              <View style={styles.formContainerLine}>
+                <View style={(Input.inputView, styles.inputWrapper)}>
+                  <Text style={Input.label}>Código</Text>
+                  <Controller
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <TextInput
+                        style={errors.code ? Input.styleError : Input.style}
+                        placeholder="Código do produto"
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                      />
+                    )}
+                    name="code"
+                  />
+                  {errors.name && (
+                    <Text style={Input.errorText}>Lote é obrigatório</Text>
                   )}
-                  name="code"
-                />
-                {errors.name && (
-                  <Text style={Input.errorText}>Lote é obrigatório</Text>
-                )}
+                </View>
               </View>
-            </View>
-            <View style={styles.formContainerLine}>
-              <View style={(Input.inputView, styles.inputWrapper)}>
-                <Text style={Input.label}>Preço (Unitário)</Text>
-                <Controller
-                  control={control}
-                  rules={{ required: false }}
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      keyboardType="numeric"
-                      style={errors.price ? Input.styleError : Input.style}
-                      placeholder="R$ 20,00"
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={formatCurrency(value)}
-                    />
+              <View style={styles.formContainerLine}>
+                <View style={(Input.inputView, styles.inputWrapper)}>
+                  <Text style={Input.label}>Preço (Unitário)</Text>
+                  <Controller
+                    control={control}
+                    rules={{ required: false }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <TextInput
+                        keyboardType="numeric"
+                        style={errors.price ? Input.styleError : Input.style}
+                        placeholder="R$ 20,00"
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={formatCurrency(value)}
+                      />
+                    )}
+                    name="price"
+                  />
+                  {errors.name && (
+                    <Text style={Input.errorText}>Lote é obrigatório</Text>
                   )}
-                  name="price"
-                />
-                {errors.name && (
-                  <Text style={Input.errorText}>Lote é obrigatório</Text>
-                )}
+                </View>
               </View>
-            </View>
 
-            <View style={styles.formContainerLine}>
-              <View style={(Input.inputView, styles.inputWrapper)}>
-                <Text style={Input.label}>Data de validade</Text>
-                <Controller
-                  control={control}
-                  rules={{ required: false }}
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <CustomInput
-                      variant="date"
-                      placeholder="R$ 20,00"
-                      errors={errors}
-                      name="validate"
-                      onChange={onChange}
-                    />
+              <View style={styles.formContainerLine}>
+                <View style={(Input.inputView, styles.inputWrapper)}>
+                  <Text style={Input.label}>Data de validade</Text>
+                  <Controller
+                    control={control}
+                    rules={{ required: false }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <CustomInput
+                        variant="date"
+                        placeholder="00/00/0000"
+                        errors={errors}
+                        name="validate"
+                        onChange={onChange}
+                      />
+                    )}
+                    name="validate"
+                  />
+                  {errors.validate && (
+                    <Text style={Input.errorText}>Lote é obrigatório</Text>
                   )}
-                  name="validate"
-                />
-                {errors.validate && (
-                  <Text style={Input.errorText}>Lote é obrigatório</Text>
-                )}
+                </View>
               </View>
-            </View>
 
-            <View style={styles.formContainerLine}>
-              <View style={(Input.inputView, styles.inputWrapper)}>
-                <Text style={Input.label}>Categoria</Text>
-                <Controller
-                  control={control}
-                  rules={{ required: false }}
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <CustomInput
-                      variant="option"
-                      options={optionsCategory}
-                      errors={errors}
-                      placeholder="Selecione a categoria"
-                      name="category"
-                      onChange={onChange}
-                      value={value}
-                    />
+              <View style={styles.formContainerLine}>
+                <View style={(Input.inputView, styles.inputWrapper)}>
+                  <Text style={Input.label}>Categoria</Text>
+                  <Controller
+                    control={control}
+                    rules={{ required: false }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <CustomInput
+                        variant="option"
+                        options={optionsCategory}
+                        errors={errors}
+                        placeholder="Selecione a categoria"
+                        name="category"
+                        onChange={onChange}
+                        value={value}
+                      />
+                    )}
+                    name="category"
+                  />
+                  {errors.category && (
+                    <Text style={Input.errorText}>Categoria é obrigatório</Text>
                   )}
-                  name="category"
-                />
-                {errors.category && (
-                  <Text style={Input.errorText}>Categoria é obrigatório</Text>
-                )}
+                </View>
+              </View>
+              <View style={styles.formContainerLine}>
+                <View style={(Input.inputView, styles.inputWrapper)}>
+                  <Text style={Input.label}>Lote</Text>
+                  <Controller
+                    control={control}
+                    rules={{ required: false }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <TextInput
+                        style={errors.batch ? Input.styleError : Input.style}
+                        placeholder="Ex: 100"
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                      />
+                    )}
+                    name="batch"
+                  />
+                  {errors.name && (
+                    <Text style={Input.errorText}>Lote é obrigatório</Text>
+                  )}
+                </View>
+                <View style={(Input.inputView, styles.inputWrapper)}>
+                  <Text style={Input.label}>Quantidade de itens</Text>
+                  <Controller
+                    control={control}
+                    rules={{ required: false }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <TextInput
+                        style={errors.qtdItems ? Input.styleError : Input.style}
+                        placeholder="Ex: 12"
+                        keyboardType="numeric"
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                      />
+                    )}
+                    name="qtdItems"
+                  />
+                  {errors.name && (
+                    <Text style={Input.errorText}>
+                      Qauntidade de items é obrigatório.
+                    </Text>
+                  )}
+                </View>
+              </View>
+              <View style={styles.formContainerLine}>
+                <View style={(Input.inputView, styles.inputWrapper)}>
+                  <Text style={Input.label}>Local</Text>
+                  <Controller
+                    control={control}
+                    rules={{ required: false }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <TextInput
+                        style={errors.place ? Input.styleError : Input.style}
+                        placeholder="Ex: Prateleira 2"
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                      />
+                    )}
+                    name="place"
+                  />
+                  {errors.place && (
+                    <Text style={Input.errorText}>Lote é obrigatório</Text>
+                  )}
+                </View>
+              </View>
+              <View style={styles.formContainerLine}>
+                <View style={(Input.inputView, styles.inputWrapper)}>
+                  <Text style={Input.label}>Fornecedor</Text>
+                  <Controller
+                    control={control}
+                    rules={{ required: false }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <CustomInput
+                        variant="option"
+                        options={optionsSupplier}
+                        errors={errors}
+                        placeholder="Selecione o fornecedor"
+                        name="supplier"
+                        onChange={onChange}
+                        value={value}
+                      />
+                    )}
+                    name="supplier"
+                  />
+                </View>
               </View>
             </View>
-            <View style={styles.formContainerLine}>
-              <View style={(Input.inputView, styles.inputWrapper)}>
-                <Text style={Input.label}>Lote</Text>
-                <Controller
-                  control={control}
-                  rules={{ required: false }}
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      style={errors.batch ? Input.styleError : Input.style}
-                      placeholder="Ex: 100"
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                    />
-                  )}
-                  name="batch"
-                />
-                {errors.name && (
-                  <Text style={Input.errorText}>Lote é obrigatório</Text>
-                )}
-              </View>
-              <View style={(Input.inputView, styles.inputWrapper)}>
-                <Text style={Input.label}>Quantidade de itens</Text>
-                <Controller
-                  control={control}
-                  rules={{ required: false }}
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      style={errors.qtdItems ? Input.styleError : Input.style}
-                      placeholder="Ex: 12"
-                      keyboardType="numeric"
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                    />
-                  )}
-                  name="qtdItems"
-                />
-                {errors.name && (
-                  <Text style={Input.errorText}>
-                    Qauntidade de items é obrigatório.
-                  </Text>
-                )}
-              </View>
-            </View>
-            <View style={styles.formContainerLine}>
-              <View style={(Input.inputView, styles.inputWrapper)}>
-                <Text style={Input.label}>Local</Text>
-                <Controller
-                  control={control}
-                  rules={{ required: false }}
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      style={errors.place ? Input.styleError : Input.style}
-                      placeholder="Ex: Prateleira 2"
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                    />
-                  )}
-                  name="place"
-                />
-                {errors.place && (
-                  <Text style={Input.errorText}>Lote é obrigatório</Text>
-                )}
-              </View>
-            </View>
-            <View style={styles.formContainerLine}>
-              <View style={(Input.inputView, styles.inputWrapper)}>
-                <Text style={Input.label}>Fornecedor</Text>
-                <Controller
-                  control={control}
-                  rules={{ required: false }}
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <CustomInput
-                      variant="option"
-                      options={optionsSupplier}
-                      errors={errors}
-                      placeholder="Selecione o fornecedor"
-                      name="supplier"
-                      onChange={onChange}
-                      value={value}
-                    />
-                  )}
-                  name="supplier"
-                />
-              </View>
-            </View>
-          </View>
-        </ScrollView>
-      </View>
-      <View style={styles.buttonContainer}>
-        <Button onPress={handleSubmit(onSubmit)} isLoading={isLoad}>
-          Salvar Produto
-        </Button>
-      </View>
-    </SafeAreaView>
+          </ScrollView>
+        </View>
+        <SafeAreaView style={styles.buttonContainer}>
+          <Button onPress={handleSubmit(onSubmit)} isLoading={isLoad}>
+            Salvar Produto
+          </Button>
+        </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }
 

@@ -54,7 +54,7 @@ export function DataPicker({
             const date = new Date(year, month, day);
             setSelectedDate(date);
             setTempDate(date);
-            setInputValue(formatDate(date));
+            setInputValue(formatDate(date, "dd/MM/yyyy"));
           }
         }
       } catch (error) {
@@ -64,7 +64,7 @@ export function DataPicker({
   }, [value]);
 
   const updateInputValue = (date: Date) => {
-    const formattedDate = formatDate(date);
+    const formattedDate = formatDate(date, "dd/MM/yyyy");
     setInputValue(formattedDate);
     if (onChangeText) {
       onChangeText(formattedDate);

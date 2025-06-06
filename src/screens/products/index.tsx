@@ -5,7 +5,7 @@ import {
   useRoute,
 } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { useForm } from "react-hook-form";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -19,6 +19,9 @@ import { typography } from "../../styles/typography";
 import { useBatchFilterActions } from "./ducks/filter/hooks/actions";
 import { useFilterState } from "./ducks/filter/hooks/filterState";
 import Header from "../../components/header";
+import ModalLoad from "../../components/modal-load";
+import { useDialogModal } from "../../hook/handle-modal/hooks/actions";
+import { setHomeReady } from "../../hook/use-notification-setup";
 
 const PER_PAGE = 10;
 
@@ -50,6 +53,13 @@ function Products() {
   console.log("error", error);
   console.log("isError", isError);
 
+  // Marca a home como pronta quando os dados são carregados
+  useEffect(() => {
+    if (!isLoading && !isError) {
+      setHomeReady(true);
+    }
+  }, [isLoading, isError]);
+
   useLayoutEffect(() => {
     updateFilter({ key: "search", value: productInformation?.code });
     if (isFocused) {
@@ -68,8 +78,8 @@ function Products() {
     return <ProductCard item={item} />;
   };
   const notificationCount = 2;
-
   const keyExtractor = (item: any) => item.id.toString();
+
   return (
     <View style={{ flex: 1 }}>
       <Header.Root>
@@ -152,7 +162,7 @@ function Products() {
           onPress={handleFloatingButtonPress}
         >
           <Ionicons name="add" size={16} color="white" />
-          <Text style={styles.floatingButtonText}> Adicionar produtos</Text>
+          <Text style={styles.floatingButtonText}> dicionar produtos</Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -1,18 +1,13 @@
 {
   "expo": {
-    "name": "app",
+    "name": "Prazzo",
     "slug": "app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/logo-white.png",
+    "icon": "./assets/default/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "scheme": "le0henr1que",
-    "splash": {
-      "image": "./assets/logo-white.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#0891B2"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.le0henr1que.app",
@@ -27,8 +22,8 @@
       },
       "googleServicesFile": "./firebase/google-services.json",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/default/logo_vencefy_1.png",
+        "backgroundColor": "#247BA0"
       },
       "namespace": "com.le0henr1que.app",
       "edgeToEdgeEnabled": true,
@@ -50,6 +45,18 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#247BA0",
+          "image": "./assets/default/noprazo.png",
+          "resizeMode": "contain",
+          "dark": {
+            "image": "./assets/default/noprazo.png",
+            "backgroundColor": "#247BA0"
+          }
+        }
+      ],
       "expo-camera",
       [
         "expo-image-picker",

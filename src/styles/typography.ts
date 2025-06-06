@@ -7,7 +7,7 @@ export const typography = {
     extrabold: "Inter_800ExtraBold",
   },
   size: {
-    base: 16,
+    base: 15,
     small: 14,
     "x-small": 12,
     large: 18,

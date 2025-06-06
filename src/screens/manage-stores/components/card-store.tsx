@@ -6,6 +6,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
 import { ScreensType } from "../../index.screens";
 import { useAuth } from "../../../hook/auth";
+import SwitchStoreLoad from "../../../components/switch-store-load";
 
 export interface IOrganization {
   id: string;
@@ -38,7 +39,7 @@ export interface OrganizationListResponse {
 
 export const CardStore = ({ item }: { item: IOrganization }) => {
   const navigate = useNavigation<NativeStackNavigationProp<ScreensType>>();
-  const { switchStore } = useAuth();
+  const { switchStore, isLoadingSwitchStore } = useAuth();
 
   const handleSwitchStore = async (storeId: string) => {
     try {
@@ -47,6 +48,7 @@ export const CardStore = ({ item }: { item: IOrganization }) => {
       console.error("Erro ao trocar de loja:", error);
     }
   };
+
   return (
     <TouchableOpacity style={styles.card}>
       <Image

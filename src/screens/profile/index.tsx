@@ -401,6 +401,7 @@ function Profile() {
             flexDirection: "row",
             justifyContent: "space-between",
           }}
+          onPress={() => navigation.navigate("TermsScreen")}
         >
           <View style={{ display: "flex", flexDirection: "row", gap: 8 }}>
             <Ionicons

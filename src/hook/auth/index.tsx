@@ -27,7 +27,10 @@ import {
   setToken,
   setUser,
 } from "./slice/auth-slice";
-
+import {
+  triggerNotificationAcceptance,
+  useNotificationsSetup,
+} from "../use-notification-setup";
 import { IOS_CLIENT_ID } from "@env";
 import {
   useGetOneOrganizationQuery,
@@ -53,12 +56,15 @@ interface AuthContextType {
     isNotification: boolean;
     notificationInterval: string;
     organization_name: string;
+    notification_token: string;
   }) => Promise<void>;
   switchStore: (storeId: string) => Promise<void>;
   toGoOnboarding?: boolean;
   googleToken?: string;
   currentStore?: string;
   setAuthenticated?: (value: boolean) => void;
+  isLoadingOnboarding?: boolean;
+  isLoadingSwitchStore?: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -66,6 +72,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
+  const [isLoadingOnboarding, setIsLoadingOnboarding] = useState(false);
+  const [isLoadingSwitchStore, setLoadingSwitchStore] = useState(false);
   const [socialLogin] = useSocialLoginMutation();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [register, { isLoading: isLoadingRegister }] = useRegisterMutation();
@@ -89,10 +97,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   } = useGetOneOrganizationQuery({
     id: userDataBase?.currentOrganizationId || "",
   });
+  const { updateNotificationAcceptance } = useNotificationsSetup(() => {});
 
   useEffect(() => {
     const checkAuthentication = async () => {
       setLoad(true);
+      setIsLoadingOnboarding(true);
+      console.log("Checking authentication...");
       try {
         const token = await AsyncStorage.getItem("@vencify:token");
         console.log("Token from AsyncStorage:", token);
@@ -112,6 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsAuthenticated(false);
       } finally {
         setLoad(false);
+        setIsLoadingOnboarding(false);
       }
     };
     checkAuthentication();
@@ -131,7 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const switchStore = useCallback(async (storeId: string) => {
     setLoad(true);
-
+    setLoadingSwitchStore(true);
     try {
       await switchOrganization({ id: storeId }).unwrap();
       const rtk = await AsyncStorage.getItem("@vencify:refresh_token");
@@ -160,6 +172,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("Error switching store:", error);
     } finally {
       setLoad(false);
+      setLoadingSwitchStore(false);
     }
   }, []);
 
@@ -189,9 +202,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isNotification: boolean;
       notificationInterval: string;
       organization_name: string;
+      notification_token: string;
     }) => {
       setLoad(true);
       try {
+        console.log("DATA DO HOOK", data);
         const dataRegister = await register(data).unwrap();
         const { accessToken, refreshToken } = dataRegister;
         await AsyncStorage.setItem("@vencify:token", accessToken);
@@ -203,15 +218,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const orgResponse = await refetchUserDataStore().unwrap();
         dispatch(setCurrentStore(orgResponse));
 
-        const fcmToken = await messaging().getToken();
-        console.log("FCM Token gerado no login com ogoo:", fcmToken);
-        await saveFcmToken({ fcmToken }).unwrap();
+        // Request notification permission after successful login
+        const notificationAccepted = await triggerNotificationAcceptance();
+        updateNotificationAcceptance(notificationAccepted);
+
+        if (notificationAccepted) {
+          const fcmToken = await messaging().getToken();
+          console.log("FCM Token gerado no login com ogoo:", fcmToken);
+          await saveFcmToken({ fcmToken }).unwrap();
+        }
+
         setIsAuthenticated(true);
       } finally {
         setLoad(false);
       }
     },
-    [login, dispatch, refetchUserData]
+    [login, dispatch, refetchUserData, updateNotificationAcceptance]
   );
 
   const signInWithGoogle = useCallback(async () => {
@@ -352,6 +374,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         toGoOnboarding,
         user,
         isLoading: isLoadingMath,
+        isLoadingOnboarding,
+        isLoadingSwitchStore,
       }}
     >
       {children}

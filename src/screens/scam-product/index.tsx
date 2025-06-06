@@ -23,6 +23,7 @@ import { ScreensType } from "../index.screens";
 import EmptyProduct from "../../components/empty-product-action";
 import CodInsert from "../../components/code-insert";
 import ScannerWithAnimation from "../../components/animation-scam";
+import ModalLoad from "../../components/modal-load";
 
 const ScamProduct = () => {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
@@ -118,24 +119,7 @@ const ScamProduct = () => {
   }, [isFetching, productInformation, isSearch, navigation]);
 
   if (hasPermission === null) {
-    return (
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          height: "100%",
-          alignItems: "center",
-        }}
-      >
-        <LottieView
-          source={animation}
-          autoPlay
-          loop
-          style={{ width: 200, height: 200 }}
-        />
-      </View>
-    );
+    return <ModalLoad visible={true} text="Habilitando câmera..." />;
   }
 
   if (hasPermission === false) {

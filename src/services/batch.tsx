@@ -33,7 +33,7 @@ export const batch = apiSlice.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: [Tags.BATCH],
+      invalidatesTags: [Tags.BATCH, Tags.ORGANIZATION],
     }),
     getBatchs: builder.query<any, { search?: any }>({
       query: ({ search }) => ({

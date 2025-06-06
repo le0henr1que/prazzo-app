@@ -9,7 +9,6 @@ import {
   Platform,
   PermissionsAndroid,
 } from "react-native";
-// import { useFonts } from "expo-font"; // ADICIONE ESTA LINHA
 import {
   GoogleSignin,
   User,
@@ -20,31 +19,49 @@ import messaging from "@react-native-firebase/messaging";
 import notifee, { AndroidImportance } from "@notifee/react-native";
 import * as RNIap from "react-native-iap";
 
+// Configure Google Sign-In
 GoogleSignin.configure({
   iosClientId:
     "57942026538-9eollahbv2cekm62deuaqhunvq8od6vf.apps.googleusercontent.com",
 });
 
 const itemSkus = ["android.test.purchased"];
+const subscriptionSkus = ["prazzo"]; // Use o ID da assinatura criada
+const subscriptionOffers = ["oferta-prazzo"]; // IDs de oferta no Google Play
 
 export default function App() {
-  // // ADICIONE ESTE BLOCO:
-  // const [fontsLoaded] = useFonts({
-  //   "DancingScript-Regular": require("./assets/fonts/DancingScript-VariableFont_wght.ttf"),
-  // });
-
-  // if (!fontsLoaded) {
-  //   return null; // Ou um SplashScreen
-  // }
-
   const [auth, setAuth] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
   const [fcmToken, setFcmToken] = useState<string | null>(null);
   const [products, setProducts] = useState<RNIap.Product[]>([]);
+  const [subscriptions, setSubscriptions] = useState<RNIap.Subscription[]>([]);
 
-  // Solicita permissão e pega o token FCM
+  // Inicializa conexão com IAP uma única vez
   useEffect(() => {
-    async function setupFCM() {
+    const initIAP = async () => {
+      try {
+        const connected = await RNIap.initConnection();
+        if (connected) {
+          const items = await RNIap.getProducts({ skus: itemSkus });
+          setProducts(items);
+
+          const subs = await RNIap.getSubscriptions({ skus: subscriptionSkus });
+          setSubscriptions(subs);
+        }
+      } catch (err) {
+        console.error("Erro ao inicializar IAP:", err);
+      }
+    };
+    initIAP();
+
+    return () => {
+      RNIap.endConnection();
+    };
+  }, []);
+
+  // Configuração do FCM e notificação
+  useEffect(() => {
+    const setupFCM = async () => {
       if (Platform.OS === "android" && Platform.Version >= 33) {
         const granted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
@@ -55,27 +72,23 @@ export default function App() {
         }
       }
 
-      // Solicita permissão para receber notificações
       const authStatus = await messaging().requestPermission();
       const enabled =
         authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
         authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
       if (enabled) {
-        // Pega o token FCM
         const token = await messaging().getToken();
         setFcmToken(token);
         console.log("FCM Token:", token);
       } else {
         Alert.alert("Permissão negada para notificações push");
       }
-    }
+    };
 
     setupFCM();
 
-    // Listener para notificações recebidas em foreground
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
-      // Exibe notificação local na bandeja do sistema
       console.log("Mensagem recebida em foreground:", remoteMessage);
       await notifee.displayNotification({
         title: remoteMessage.notification?.title,
@@ -87,15 +100,13 @@ export default function App() {
       });
     });
 
-    // Crie o canal de notificação Android (apenas uma vez)
     notifee.createChannel({
       id: "default",
       name: "Default Channel",
       importance: AndroidImportance.HIGH,
-      sound: "default", // Garante que o canal terá som padrão
+      sound: "default",
     });
 
-    // Listener para notificações abertas pelo usuário
     const unsubscribeOpened = messaging().onNotificationOpenedApp(
       (remoteMessage) => {
         Alert.alert(
@@ -105,7 +116,6 @@ export default function App() {
       }
     );
 
-    // Checa se o app foi aberto por uma notificação (quando fechado)
     messaging()
       .getInitialNotification()
       .then((remoteMessage) => {
@@ -123,16 +133,7 @@ export default function App() {
     };
   }, []);
 
-  useEffect(() => {
-    RNIap.initConnection().then(async () => {
-      const items = await RNIap.getProducts(itemSkus);
-      setProducts(items);
-    });
-    return () => {
-      RNIap.endConnection();
-    };
-  }, []);
-
+  // Google Sign In
   async function handleGoogleSignIn() {
     if (loading) return;
     setLoading(true);
@@ -160,6 +161,7 @@ export default function App() {
     }
   }
 
+  // Compra de produto (não-assinatura)
   async function handleBuyPlan() {
     try {
       if (products.length > 0) {
@@ -169,6 +171,47 @@ export default function App() {
       }
     } catch (err) {
       Alert.alert("Erro ao comprar", String(err));
+    }
+  }
+
+  // Compra de assinatura (agora com offerToken!)
+  async function handleBuySubscription() {
+    try {
+      if (subscriptions.length === 0) {
+        Alert.alert("Assinatura não encontrada");
+        return;
+      }
+
+      const subscription = subscriptions[0];
+
+      if (Platform.OS === "android") {
+        // Para Android: buscar a oferta
+        const { subscriptionOfferDetails } = subscription;
+        if (subscriptionOfferDetails && subscriptionOfferDetails.length > 0) {
+          const offerToken = subscriptionOfferDetails[0].offerToken; // Pega o primeiro offerToken
+          await RNIap.requestSubscription({
+            sku: subscription.productId,
+            subscriptionOffers: [
+              {
+                sku: subscription.productId,
+                offerToken: offerToken,
+              },
+            ],
+            andDangerouslyFinishTransactionAutomaticallyIOS: false,
+          });
+        } else {
+          Alert.alert("Não há ofertas disponíveis para esta assinatura.");
+        }
+      } else {
+        // iOS
+        await RNIap.requestSubscription({
+          sku: subscription.productId,
+          andDangerouslyFinishTransactionAutomaticallyIOS: false,
+        });
+      }
+    } catch (err) {
+      console.error("Erro ao assinar:", err);
+      Alert.alert("Erro ao assinar", String(err));
     }
   }
 
@@ -182,34 +225,22 @@ export default function App() {
             onPress={handleGoogleSignIn}
             disabled={loading}
           />
-          <Text style={{ fontFamily: "DancingScript-Regular" }}>
-            Please sign in to continue.
-          </Text>
+          <Text>Please sign in to continue.</Text>
         </>
       ) : (
         <View>
-          <Text style={{ fontFamily: "DancingScript-Regular" }}>
-            Welcome, {auth.user.name}!
-          </Text>
-          <Text style={{ fontFamily: "DancingScript-Regular" }}>
-            Email: {auth.user.email}
-          </Text>
+          <Text>Welcome, {auth.user.name}!</Text>
+          <Text>Email: {auth.user.email}</Text>
           <Image
             source={auth.user.photo ? { uri: auth.user.photo } : undefined}
             style={{ width: 100, height: 100, borderRadius: 50 }}
           />
           <Button title="Sign out" onPress={handleGoogleSignOut} />
-          <Text
-            selectable
-            style={{
-              marginTop: 10,
-              fontSize: 12,
-              fontFamily: "DancingScript-Regular",
-            }}
-          >
+          <Text selectable style={{ marginTop: 10, fontSize: 12 }}>
             FCM Token: {fcmToken}
           </Text>
           <Button title="Comprar Plano" onPress={handleBuyPlan} />
+          <Button title="Assinar Plano" onPress={handleBuySubscription} />
         </View>
       )}
     </View>

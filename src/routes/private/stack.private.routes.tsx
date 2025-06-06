@@ -4,12 +4,17 @@ import Screen from "../../screens/index.screens";
 import { useNotificationsSetup } from "../../hook/use-notification-setup";
 import { useState } from "react";
 import TabRoutes from "./tab.private.routes";
+import { useAuth } from "../../hook/auth";
+import SwitchStoreLoad from "../../components/switch-store-load";
 const Stack = createNativeStackNavigator();
 
 export default function StackPrivateRoute() {
-  const [fcmToken, setFcmToken] = useState<string | null>(null);
-  useNotificationsSetup(setFcmToken);
-  console.log("FCM Token:", fcmToken);
+  const { switchStore, isLoadingSwitchStore } = useAuth();
+
+  if (isLoadingSwitchStore) {
+    return <SwitchStoreLoad />;
+  }
+
   return (
     <Stack.Navigator initialRouteName="Home">
       <Stack.Screen
@@ -110,6 +115,11 @@ export default function StackPrivateRoute() {
       <Stack.Screen
         name="CreateStore"
         component={Screen.CreateStore}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="TermsScreen"
+        component={Screen.TermsScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

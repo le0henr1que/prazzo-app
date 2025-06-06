@@ -19,10 +19,12 @@ import PlansManager from "./plans-manager";
 import Profile from "./profile";
 import Register from "./register";
 import ScamProduct from "./scam-product";
-import StoreRegistrationFlow from "./store-registration-flow";
+import StoreRegistrationFlow, { RedirectTo } from "./store-registration-flow";
 import Supplier from "./supplier";
 import ViewBatch from "./view-batch";
 import ViewProduct from "./view-product";
+import { TermsScreen } from "./terms";
+import LoadingScreen from "../components/load";
 
 const Screens = {
   OnboardingScreen,
@@ -50,10 +52,13 @@ const Screens = {
   EditProduct,
   AddBatch,
   CreateStore,
+  TermsScreen,
+  LoadingScreen: RedirectTo,
 };
 
 export type ScreensType = {
   CreateStore: undefined;
+  LoadingScreen: undefined;
   AddBatch: undefined;
   EditProduct: {
     productCode: string;
@@ -104,5 +109,6 @@ export type ScreensType = {
     storeName: string;
     storeAddress: string;
   };
+  TermsScreen: undefined;
 };
 export default Screens;
