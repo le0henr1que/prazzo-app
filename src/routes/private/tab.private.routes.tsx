@@ -1,11 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Text } from "react-native";
-import { colors } from "../../styles/colors";
-import Screen from "../../screens/index.screens";
 import Products from "../../screens/products";
-import MyStore from "../../screens/store";
 import Profile from "../../screens/profile";
+import MyStore from "../../screens/store";
+import { colors } from "../../styles/colors";
 
 const Tab = createBottomTabNavigator();
 

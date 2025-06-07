@@ -54,7 +54,8 @@
           "dark": {
             "image": "./assets/default/noprazo.png",
             "backgroundColor": "#247BA0"
-          }
+          },
+          "imageWidth": 200
         }
       ],
       "expo-camera",

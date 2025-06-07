@@ -18,6 +18,7 @@ import { Input } from "../../components/input/input.style";
 import { Controller, useForm } from "react-hook-form";
 import { CustomInput } from "../../components/input";
 import { useCreateOrganizationMutation } from "../../services/organization";
+import { useDialogModal } from "../../hook/handle-modal/hooks/actions";
 
 interface Estado {
   id: string;
@@ -45,6 +46,7 @@ const CreateStore = () => {
   const {
     control,
     handleSubmit,
+
     formState: { errors },
     watch,
     setValue,
@@ -114,7 +116,10 @@ const CreateStore = () => {
     fetchCidades();
   }, [selectedEstado?.id, setValue]);
 
-  const [createOrganization, { isLoading }] = useCreateOrganizationMutation();
+  const { handleModal } = useDialogModal();
+
+  const [createOrganization, { isLoading, isError, error }] =
+    useCreateOrganizationMutation();
   const onSubmit = async (data: FormData) => {
     const payload = {
       name: data.storeName,
@@ -124,6 +129,15 @@ const CreateStore = () => {
       await createOrganization(payload).unwrap();
       navigation.goBack();
     } catch (error) {
+      handleModal({
+        isOpen: true,
+        element: (
+          <Text>
+            Pobre, Safado, Atingiu o Limite do plano, pode ir comprando um novo
+            memo
+          </Text>
+        ),
+      });
       console.error("Erro ao criar organização:", error);
     }
 

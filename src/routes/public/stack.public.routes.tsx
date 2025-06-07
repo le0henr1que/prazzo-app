@@ -1,11 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import Screen from "../../screens/index.screens";
-import { Text } from "react-native";
-import { useState } from "react";
-import { useNotificationsSetup } from "../../hook/use-notification-setup";
-import { useMediaPermissions } from "../../hook/use-media-setup";
 import { useAuth } from "../../hook/auth";
+import Screen from "../../screens/index.screens";
 
 const Stack = createNativeStackNavigator();
 

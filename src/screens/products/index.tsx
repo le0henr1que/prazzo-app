@@ -7,8 +7,17 @@ import {
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useEffect, useLayoutEffect } from "react";
 import { useForm } from "react-hook-form";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Linking,
+  PermissionsAndroid,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
+import Header from "../../components/header";
 import InfiniteScrollWithLoad from "../../components/infinite-scroll-with-load";
 import ProductCard from "../../components/product-card";
 import SearchInput from "../../components/search-input";
@@ -18,14 +27,72 @@ import { colors } from "../../styles/colors";
 import { typography } from "../../styles/typography";
 import { useBatchFilterActions } from "./ducks/filter/hooks/actions";
 import { useFilterState } from "./ducks/filter/hooks/filterState";
-import Header from "../../components/header";
-import ModalLoad from "../../components/modal-load";
-import { useDialogModal } from "../../hook/handle-modal/hooks/actions";
-import { setHomeReady } from "../../hook/use-notification-setup";
+import {
+  onMessageListener,
+  onNotificationInteractionListener,
+} from "../../hook/use-notification-setup";
+import { getMessaging } from "@react-native-firebase/messaging";
+import messaging from "@react-native-firebase/messaging";
+import {
+  createDefaultNotificationChannel,
+  getFcmToken,
+  requestNotificationPermission,
+} from "../../hook/use-firebase-setup";
 
 const PER_PAGE = 10;
 
 function Products() {
+  useEffect(() => {
+    // Inicializar listeners de interação e background
+    const unsubscribeOnInteraction = onNotificationInteractionListener();
+
+    getMessaging().setBackgroundMessageHandler(async (remoteMessage) => {
+      console.log("Mensagem em background:", remoteMessage);
+    });
+
+    messaging()
+      .getInitialNotification()
+      .then((remoteMessage) => {
+        if (remoteMessage) {
+          console.log(
+            "Notificação aberta ao iniciar o app:",
+            remoteMessage.notification
+          );
+        }
+      });
+
+    return () => {
+      unsubscribeOnInteraction();
+    };
+  }, []);
+
+  // Só pede permissão e registra listeners de foreground após o clique do usuário
+  const handleEnableNotifications = async () => {
+    const granted = await requestNotificationPermission();
+    // Linking.openSettings();
+    console.log("Permissão de notificação:", granted);
+    if (granted) {
+      // Cria canal, busca token e inicializa listener de foreground
+      console.log("Permissão de notificação concedida.");
+      await createDefaultNotificationChannel();
+      await getFcmToken();
+      onMessageListener();
+      const current = await PermissionsAndroid.check(
+        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+      );
+      console.log("Permissão atual:", current);
+      console.log("Android version:", Platform.Version);
+    } else {
+      console.log("Usuário não concedeu permissão de notificação.");
+    }
+  };
+
+  useEffect(() => {
+    // Chama a função para habilitar notificações quando o componente é montado
+
+    handleEnableNotifications();
+  }, []);
+
   const { control } = useForm();
   const { user } = useAuth();
   console.log("user AQUIIIIIIIIIIIIIIIIIIII", user);
@@ -52,13 +119,6 @@ function Products() {
   });
   console.log("error", error);
   console.log("isError", isError);
-
-  // Marca a home como pronta quando os dados são carregados
-  useEffect(() => {
-    if (!isLoading && !isError) {
-      setHomeReady(true);
-    }
-  }, [isLoading, isError]);
 
   useLayoutEffect(() => {
     updateFilter({ key: "search", value: productInformation?.code });

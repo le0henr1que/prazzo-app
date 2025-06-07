@@ -4,7 +4,6 @@ import StackPrivateRoute from "./private/stack.private.routes";
 import StackPublicRoute from "./public/stack.public.routes";
 import { Text } from "react-native";
 import LoadSplash from "../components/load-splash";
-import { useNotificationsSetup } from "../hook/use-notification-setup";
 import { useState } from "react";
 
 export const MyTheme = {
@@ -17,9 +16,7 @@ export const MyTheme = {
 
 export default function Routes() {
   const { isAuthenticated, isLoading, isLoadingOnboarding } = useAuth();
-  const [fcmToken, setFcmToken] = useState<string | null>(null);
-  useNotificationsSetup(setFcmToken);
-  console.log("FCM Token:", fcmToken);
+
   if (isLoadingOnboarding) {
     return <LoadSplash />;
   }

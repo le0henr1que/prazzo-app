@@ -27,10 +27,7 @@ import {
   setToken,
   setUser,
 } from "./slice/auth-slice";
-import {
-  triggerNotificationAcceptance,
-  useNotificationsSetup,
-} from "../use-notification-setup";
+
 import { IOS_CLIENT_ID } from "@env";
 import {
   useGetOneOrganizationQuery,
@@ -97,7 +94,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   } = useGetOneOrganizationQuery({
     id: userDataBase?.currentOrganizationId || "",
   });
-  const { updateNotificationAcceptance } = useNotificationsSetup(() => {});
 
   useEffect(() => {
     const checkAuthentication = async () => {
@@ -218,22 +214,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const orgResponse = await refetchUserDataStore().unwrap();
         dispatch(setCurrentStore(orgResponse));
 
-        // Request notification permission after successful login
-        const notificationAccepted = await triggerNotificationAcceptance();
-        updateNotificationAcceptance(notificationAccepted);
-
-        if (notificationAccepted) {
-          const fcmToken = await messaging().getToken();
-          console.log("FCM Token gerado no login com ogoo:", fcmToken);
-          await saveFcmToken({ fcmToken }).unwrap();
-        }
+        const fcmToken = await messaging().getToken();
+        console.log("FCM Token gerado no login com ogoo:", fcmToken);
+        await saveFcmToken({ fcmToken }).unwrap();
 
         setIsAuthenticated(true);
       } finally {
         setLoad(false);
       }
     },
-    [login, dispatch, refetchUserData, updateNotificationAcceptance]
+    [login, dispatch, refetchUserData]
   );
 
   const signInWithGoogle = useCallback(async () => {

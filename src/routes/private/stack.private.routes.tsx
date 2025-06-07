@@ -1,11 +1,8 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Text } from "react-native";
-import Screen from "../../screens/index.screens";
-import { useNotificationsSetup } from "../../hook/use-notification-setup";
-import { useState } from "react";
-import TabRoutes from "./tab.private.routes";
-import { useAuth } from "../../hook/auth";
 import SwitchStoreLoad from "../../components/switch-store-load";
+import { useAuth } from "../../hook/auth";
+import Screen from "../../screens/index.screens";
+import TabRoutes from "./tab.private.routes";
 const Stack = createNativeStackNavigator();
 
 export default function StackPrivateRoute() {
