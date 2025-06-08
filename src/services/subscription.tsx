@@ -6,12 +6,26 @@ export const subscriptionInformation = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     subscription: builder.query<any, { sub_id: string }>({
       query: ({ sub_id }) => ({
-        url: `/subscriptions/${sub_id}`,
+        url: `/subscription/${sub_id}`,
         method: "GET",
       }),
       providesTags: [Tags.SUBSCRIPTION],
     }),
+    createPaymentRequest: builder.mutation<
+      any,
+      { googlePlanId: string; paymentToken: string }
+    >({
+      query: ({ googlePlanId, paymentToken }) => ({
+        url: `/subscription/google-payment`,
+        method: "POST",
+        body: {
+          googlePlanId,
+          paymentToken,
+        },
+      }),
+    }),
   }),
 });
 
-export const { useSubscriptionQuery } = subscriptionInformation;
+export const { useSubscriptionQuery, useCreatePaymentRequestMutation } =
+  subscriptionInformation;

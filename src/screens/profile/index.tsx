@@ -285,7 +285,7 @@ function Profile() {
             flexDirection: "row",
             justifyContent: "space-between",
           }}
-          onPress={() => navigation.navigate("PlansManager")}
+          onPress={() => navigation.navigate("PlanScreen")}
         >
           <View style={{ display: "flex", flexDirection: "row", gap: 8 }}>
             <Ionicons

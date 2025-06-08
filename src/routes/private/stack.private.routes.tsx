@@ -60,6 +60,11 @@ export default function StackPrivateRoute() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
+        name="PlanScreen"
+        component={Screen.PlanScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
         name="ManageNotifications"
         component={Screen.ManageNotifications}
         options={{ headerShown: false }}

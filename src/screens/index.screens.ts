@@ -14,24 +14,23 @@ import Members from "./members";
 import ModifyPassword from "./modify-password";
 import Notification from "./notification";
 import OnboardingScreen from "./on-boarding";
+import PlanScreen from "./plan-free";
 import { PlanPremium } from "./plan-premium";
 import PlansManager from "./plans-manager";
 import Profile from "./profile";
 import Register from "./register";
 import ScamProduct from "./scam-product";
-import StoreRegistrationFlow, { RedirectTo } from "./store-registration-flow";
+import { RedirectTo } from "./store-registration-flow";
 import Supplier from "./supplier";
+import { TermsScreen } from "./terms";
 import ViewBatch from "./view-batch";
 import ViewProduct from "./view-product";
-import { TermsScreen } from "./terms";
-import LoadingScreen from "../components/load";
 
 const Screens = {
   OnboardingScreen,
   Login,
   Register,
   ConfirmCode,
-  StoreRegistrationFlow,
   ScamProduct,
   AddProduct,
   Profile,
@@ -54,9 +53,11 @@ const Screens = {
   CreateStore,
   TermsScreen,
   LoadingScreen: RedirectTo,
+  PlanScreen,
 };
 
 export type ScreensType = {
+  PlanScreen: undefined;
   CreateStore: undefined;
   LoadingScreen: undefined;
   AddBatch: undefined;
