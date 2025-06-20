@@ -17,7 +17,7 @@ const OnboardingScreen = ({ navigation }: ButtonsProps) => {
       <StatusBar translucent backgroundColor="transparent" />
       <View>
         <Image
-          source={require("../../../assets/init.png")}
+          source={require("../../../assets/default/onboardingBackground.png")}
           style={styles.Image}
         />
         <Image
