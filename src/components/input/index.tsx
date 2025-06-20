@@ -4,6 +4,8 @@ import { TextInput, TextInputProps, TouchableOpacity } from "react-native";
 import { DataPicker } from "./date-picker";
 import { OptionsInput } from "./options";
 import { Input } from "./input.style";
+import { colors } from "../../styles/colors";
+import { UseFormClearErrors } from "react-hook-form";
 
 export type Variant = "normal" | "password" | "option" | "date";
 
@@ -17,6 +19,7 @@ export interface CustomInputProps extends Omit<TextInputProps, "onChange"> {
   name: string;
   options?: { id: string; label: string }[];
   onChange?: (value: string) => void;
+  clearErrors?: UseFormClearErrors<any>;
 }
 
 export const CustomInput: React.FC<CustomInputProps> = ({
@@ -25,6 +28,7 @@ export const CustomInput: React.FC<CustomInputProps> = ({
   options,
   onChange,
   onChangeText,
+  clearErrors,
   ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -57,7 +61,15 @@ export const CustomInput: React.FC<CustomInputProps> = ({
           errors?.[props.name] && Input.inputError,
           isFocused && Input.inputFocused,
         ]}
-        onFocus={() => setIsFocused(true)}
+        placeholderTextColor={
+          hasError ? colors.danger.default : colors.neutral["3"]
+        }
+        onFocus={() => {
+          setIsFocused(true);
+          if (clearErrors) {
+            clearErrors(props.name);
+          }
+        }}
         onBlur={() => setIsFocused(false)}
         onChangeText={handleChange}
         {...props}

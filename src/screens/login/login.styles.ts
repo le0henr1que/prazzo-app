@@ -27,8 +27,8 @@ export const styles = StyleSheet.create({
     opacity: 0.2,
   },
   image: {
-    width: 107,
-    height: 27,
+    width: 98,
+    height: 25,
     resizeMode: "contain",
   },
   header: {
@@ -42,14 +42,13 @@ export const styles = StyleSheet.create({
   textHeader: {
     flex: 1,
     width: "100%",
-
     gap: 24,
     justifyContent: "center",
     alignItems: "flex-start",
     textAlign: "left",
     paddingBottom: 25,
-    paddingLeft: 20,
-    paddingTop: 64,
+    paddingLeft: 16,
+    paddingTop: 69,
     paddingRight: 20,
   },
 

@@ -55,6 +55,7 @@ export const Input = StyleSheet.create({
   },
   inputError: {
     borderColor: colors.danger.default,
+    backgroundColor: colors.danger.light,
   },
   inputFocused: {
     borderColor: colors.brand.default,
