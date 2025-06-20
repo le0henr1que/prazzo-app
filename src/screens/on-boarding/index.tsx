@@ -105,7 +105,7 @@ const Buttons = ({ navigation }: ButtonsProps) => (
       <View style={styles.line} />
     </View>
 
-    <View style={{ width: "100%", marginTop: 7 }}>
+    <View style={{ width: "100%", marginTop: 1 }}>
       <Button
         variant="neutral"
         type="outlined"
