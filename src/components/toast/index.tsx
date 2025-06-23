@@ -7,6 +7,8 @@ import {
   ColorValue,
   Animated,
   Easing,
+  StyleProp,
+  ViewStyle,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import type { ComponentProps } from "react";
@@ -20,12 +22,14 @@ interface CustomToastProps {
   message: string;
   type?: ToastType;
   onHide: () => void;
+  style?: StyleProp<ViewStyle>;
 }
 
 export const CustomToast: React.FC<CustomToastProps> = ({
   message,
   type = "info",
   onHide,
+  style,
 }) => {
   const translateY = useRef(new Animated.Value(-80)).current;
   const opacity = useRef(new Animated.Value(0)).current;
@@ -69,10 +73,10 @@ export const CustomToast: React.FC<CustomToastProps> = ({
 
     const timeout = setTimeout(() => {
       animateOut();
-    }, 5000);
+    }, 3000);
 
     return () => clearTimeout(timeout);
-  }, [onHide]);
+  }, []);
 
   const bgColors: Record<ToastType, ColorValue> = {
     success: colors.success[600],
@@ -105,7 +109,7 @@ export const CustomToast: React.FC<CustomToastProps> = ({
           backgroundColor,
           opacity,
           transform: [{ translateY }],
-        },
+        }, style,
       ]}
     >
       <View style={[styles.iconWrapper, { backgroundColor: iconBgColor }]}>
@@ -150,6 +154,7 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   customX: {
+    position: "absolute",
     width: 16,
     height: 16,
     justifyContent: "center",
