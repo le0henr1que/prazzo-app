@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 
@@ -14,17 +15,41 @@ import { ScreensType } from "../index.screens";
 import { useVerifyMutation } from "../../hook/auth/slice/auth-api";
 import Button from "../../components/button";
 import { colors } from "../../styles/colors";
+import Typography from "../../components/text";
+import { Input } from "../../components/input/input.style";
+import { CustomToast } from "../../components/toast";
+import { useCodeCheckMutation } from '../../hook/auth/slice/auth-api';
+
+type ToastType = "success" | "danger";
+interface ToastData {
+  id: string;
+  message: string;
+  type?: ToastType;
+}
 
 export default function ConfirmCode() {
   const navigation = useNavigation<NativeStackNavigationProp<ScreensType>>();
   const route = useRoute();
-  const { email, name } = route.params as any;
+  const { email, name, password } = route.params as any;
+  const [toast, setToast] = useState<ToastData | null>(null);
 
   const [code, setCode] = useState(["", "", "", ""]);
   const [timer, setTimer] = useState(62);
+  const [resendCode ] = useCodeCheckMutation();
+
   const inputs = useRef<(TextInput | null)[]>([]);
+  const [hasError, setHasError] = useState(false);
 
   const [focusIndex, setFocusIndex] = useState<number | null>(null);
+
+  const showToast = (message: string, type: ToastType) => {
+    const id = String(Date.now());
+    setToast({ id, message, type });
+  };
+
+  const hideToast = () => {
+    setToast(null);
+  };
 
   const handleInputChange = async (text: any, index: any) => {
     const newCode = [...code];
@@ -57,6 +82,16 @@ export default function ConfirmCode() {
     timer % 60 < 10 ? "0" : ""
   }${timer % 60}`;
 
+  const handleResendCode = async () => {
+    try {
+      await resendCode({ email, password,  name }).unwrap();
+      showToast('Código reenviado com sucesso!', 'success');
+      setTimer(62);
+    } catch (err) {
+      showToast('Falha ao reenviar o código', 'danger');
+    }
+  };
+
   const [verify, { isLoading }] = useVerifyMutation();
   const { handleNotification } = useDialogNotification();
 
@@ -66,28 +101,44 @@ export default function ConfirmCode() {
         email,
         token: code,
       }).unwrap();
+      setHasError(false);
       console.log(result);
       navigation.navigate("StoreRegistrationFlow", { ...result, name });
     } catch (error: any) {
-      handleNotification({
+      setHasError(true);
+      showToast("Código de confirmação inválido", "danger");
+     /*  handleNotification({
         isOpen: true,
         variant: "error",
         title: "Erro ao validar código",
         message: error?.data?.messages[0] || "Ocorreu um erro",
-      });
+      }); */
     }
   };
 
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.container}>
+        {toast && (
+          <CustomToast
+            key={toast.id}
+            message={toast.message}
+            type={toast.type}
+            onHide={hideToast}
+            style={{alignSelf: "center"}}
+          />
+        )}
       <View></View>
       <View>
-        <Text style={styles.title}>Insira o código de confirmação</Text>
-        <Text style={styles.subtitle}>
+        <Typography variant="XL" family="bold" style={styles.title}>
+          Insira o código de confirmação
+        </Typography>
+        <Typography variant="SM" family="medium" style={styles.subtitle}>
           Um código de 4 dígitos foi enviado para o email
           {"\n"}
-          <Text style={styles.email}>{email}</Text>
-        </Text>
+          <Typography variant="SM" family="medium" style={styles.email}>
+            {email}
+          </Typography>
+        </Typography>
 
         <View style={styles.codeInputContainer}>
           {code.map((digit, index) => (
@@ -98,7 +149,9 @@ export default function ConfirmCode() {
                 inputs.current[index] = ref;
               }}
               style={[
-                focusIndex === index ? styles.focusedStyle : styles.input,
+                styles.input,
+                focusIndex === index && styles.focusedStyle,
+                hasError && Input.inputError,
               ]}
               keyboardType="number-pad"
               textContentType="oneTimeCode"
@@ -128,11 +181,24 @@ export default function ConfirmCode() {
         >
           Validar código
         </Button>
-
-        <Text style={styles.resendText}>
+        {timer > 0 ? (
+        <Typography variant="BASE" family="medium" style={styles.resendText}>
           Não recebeu o código?{" "}
-          <Text style={styles.timer}>Aguarde {formattedTimer}</Text>
-        </Text>
+          <Typography variant="BASE" family="medium" style={styles.timer}>
+            Aguarde {formattedTimer}
+          </Typography>
+        </Typography>
+        ) : (
+          <Button
+          onPress={handleResendCode}
+          type="ghost"
+          size="large"
+          disabled={false}
+        >
+          Reenviar código
+        </Button>
+
+        )}
       </View>
     </KeyboardAvoidingView>
   );
@@ -145,23 +211,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
   },
   title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    lineHeight: 28,
     textAlign: "center",
     marginBottom: 8,
   },
   subtitle: {
-    fontSize: 14,
     textAlign: "center",
     marginBottom: 40,
     color: colors.neutral["500"],
-    fontWeight: "normal",
-    lineHeight: 20,
   },
   email: {
     fontWeight: "normal",
-    color: colors.primary["600"],
+    color: colors.brand.default,
   },
   codeInputContainer: {
     flexDirection: "row",
@@ -194,13 +254,9 @@ const styles = StyleSheet.create({
   resendText: {
     marginTop: 16,
     textAlign: "center",
-    fontWeight: "normal",
-    lineHeight: 24,
     color: colors.neutral["900"],
   },
   timer: {
-    fontWeight: "normal",
-    lineHeight: 24,
     color: colors.neutral["500"],
   },
   focusedStyle: {

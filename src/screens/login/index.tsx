@@ -43,6 +43,8 @@ export default function Login() {
   const { handleNotification } = useDialogNotification();
   const dispatch = useDispatch();
   const [toast, setToast] = useState<ToastData | null>(null);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
+  
 
   const showToast = (message: string, type: ToastType) => {
     const id = String(Date.now());
@@ -213,6 +215,8 @@ export default function Login() {
                       placeholder="Digite seu email"
                       onChangeText={onChange}
                       clearErrors={clearErrors}
+                      focusedField={focusedField} 
+                      setFocusedField={setFocusedField}
                       value={value}
                     />
                   )}
@@ -245,6 +249,8 @@ export default function Login() {
                         secureTextEntry={!isPasswordVisible}
                         onChangeText={onChange}
                         clearErrors={clearErrors}
+                        focusedField={focusedField}
+                        setFocusedField={setFocusedField}
                         value={value}
                       />
 

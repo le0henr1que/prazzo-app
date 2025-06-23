@@ -20,6 +20,8 @@ export interface CustomInputProps extends Omit<TextInputProps, "onChange"> {
   options?: { id: string; label: string }[];
   onChange?: (value: string) => void;
   clearErrors?: UseFormClearErrors<any>;
+  focusedField?: string | null;
+  setFocusedField: (name: string | null) => void;
 }
 
 export const CustomInput: React.FC<CustomInputProps> = ({
@@ -29,9 +31,11 @@ export const CustomInput: React.FC<CustomInputProps> = ({
   onChange,
   onChangeText,
   clearErrors,
+  focusedField,
+  setFocusedField,
   ...props
 }) => {
-  const [isFocused, setIsFocused] = useState(false);
+  const isFocused = focusedField === props.name;
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const hasError = errors && errors[props?.name];
 
@@ -65,12 +69,10 @@ export const CustomInput: React.FC<CustomInputProps> = ({
           hasError ? colors.danger.default : colors.neutral["3"]
         }
         onFocus={() => {
-          setIsFocused(true);
-          if (clearErrors) {
-            clearErrors(props.name);
-          }
+          setFocusedField(props.name);
+          clearErrors?.(props.name);
         }}
-        onBlur={() => setIsFocused(false)}
+        onBlur={() => setFocusedField(null)}
         onChangeText={handleChange}
         {...props}
       />
@@ -84,8 +86,11 @@ export const CustomInput: React.FC<CustomInputProps> = ({
             isFocused && Input.inputFocused,
           ]}
           secureTextEntry={!isPasswordVisible}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          onFocus={() => {
+            setFocusedField(props.name);
+            clearErrors?.(props.name);
+          }}
+          onBlur={() => setFocusedField(null)}
           onChangeText={handleChange}
           {...props}
         />

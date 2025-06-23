@@ -72,8 +72,6 @@ export const Input = StyleSheet.create({
     right: 16,
   },
   label: {
-    fontSize: 14,
-    fontWeight: "500",
     color: colors.neutral[7],
     marginBottom: 8,
   },
