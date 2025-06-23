@@ -27,16 +27,18 @@ export const styles = StyleSheet.create({
     opacity: 0.2,
   },
   image: {
-    width: 92,
-    height: 29,
+    width: 98,
+    height: 25,
+    top: 8,
     resizeMode: "contain",
   },
   header: {
     flex: 1,
-    backgroundColor: colors.primary["700"],
+    backgroundColor: colors.brand.dark,
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
+    paddingBottom: 20,
     // resizeMode: "stretch",
   },
   textHeader: {
@@ -52,12 +54,8 @@ export const styles = StyleSheet.create({
     paddingRight: 20,
   },
   title: {
+    top: 20,
     color: "white",
-    width: "70%",
-    fontSize: 32,
-    fontStyle: "normal",
-    fontWeight: typography.weight.bold as any,
-    lineHeight: 41.6,
   },
   body: {
     flex: 3,
