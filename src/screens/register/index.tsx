@@ -73,6 +73,7 @@ export default function Register() {
       }).unwrap();
 
       navigation.navigate("ConfirmCode", {
+        mode: "register",
         userId: userId?.id,
         email: data.email,
         name: data.name,
@@ -91,10 +92,10 @@ export default function Register() {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === "ios" ? "padding" : "padding"}
       style={{ flex: 1 }}
     >
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 0 }}>
         <View style={styles.container}>
           <ImageBackground
             source={require("../../../assets/background.png")}
@@ -279,7 +280,7 @@ export default function Register() {
                   size="large"
                   isLoading={isLoading}
                   onPress={handleSubmit(onSubmit)}
-                  disabled={Object.keys(errors).length > 0 || !isFormValid()}
+                  disabled={isLoading || Object.keys(errors).length > 0 || !isFormValid()}
                 >
                   Criar conta
                 </Button>
@@ -292,11 +293,12 @@ export default function Register() {
                   style={{
                     color: colors.neutral["500"],
                     textAlign: "center",
-                    marginTop: 16,
+                    marginTop: 95,
                   }}
                 >
                   Já possui conta?{" "}
                   <Typography
+                    onPress={() => navigation.navigate("Login", {})}
                     variant="SM"
                     family="bold"
                     style={{

@@ -25,11 +25,15 @@ import ViewBatch from "./view-batch";
 import ViewProduct from "./view-product";
 import { TermsScreen } from "./terms";
 import LoadingScreen from "../components/load";
+import ForgotPassword from "./forgot-password";
+import NewPassword from "./new-password";
 
 const Screens = {
   OnboardingScreen,
   Login,
   Register,
+  ForgotPassword,
+  NewPassword, 
   ConfirmCode,
   StoreRegistrationFlow,
   ScamProduct,
@@ -83,13 +87,18 @@ export type ScreensType = {
   PlansManager: undefined;
   ModifyPassword: undefined;
   EditProfile: undefined;
+  ForgotPassword: undefined;
+  NewPassword: undefined;
   Notification: undefined;
   OnboardingScreen: undefined;
   ScamProduct: {
     isSearch?: boolean;
   };
   Profile: undefined;
-  Login: undefined;
+  Login: {
+    successMessage?: string;
+    successType?: "success";
+  };
   Register: undefined;
   ResetPassword: undefined;
   Home: {
