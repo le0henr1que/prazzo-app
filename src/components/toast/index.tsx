@@ -152,15 +152,16 @@ const styles = StyleSheet.create({
   },
   message: {
     color: "#fff",
+    flex: 1,        
+    flexWrap: "wrap",
   },
   customX: {
-    position: "absolute",
+    left: 110,
     width: 16,
     height: 16,
     justifyContent: "center",
     alignItems: "center",
-    transform: [{ rotate: "45deg" }],
-    left: 110,
+    transform: [{ rotate: "45deg" }, { translateY: -10 }],
   },
   line: {
     position: "absolute",
