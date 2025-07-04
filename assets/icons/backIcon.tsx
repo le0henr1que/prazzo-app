@@ -14,14 +14,14 @@ const BackIconcon: React.FC<BackIconconProps> = ({
     <Path
       d="M20.25 12H3.75"
       stroke="white"
-      stroke-width="2"
+      strokeWidth="2"
       stroke-linecap="round"
       stroke-linejoin="round"
     />
     <Path
       d="M10.5 5.25L3.75 12L10.5 18.75"
       stroke="white"
-      stroke-width="2"
+      strokeWidth="2"
       stroke-linecap="round"
       stroke-linejoin="round"
     />
