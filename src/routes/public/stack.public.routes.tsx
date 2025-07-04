@@ -28,6 +28,16 @@ export default function StackPublicRoute() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name="ForgotPassword"
+          component={Screen.ForgotPassword}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="NewPassword"
+          component={Screen.NewPassword}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
           name="ConfirmCode"
           component={Screen.ConfirmCode}
           options={{ headerShown: false }}
