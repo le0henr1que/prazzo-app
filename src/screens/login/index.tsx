@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import { useFocusEffect, useNavigation, RouteProp, useRoute } from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   Image,
@@ -29,31 +29,20 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setToken } from "../../hook/auth/slice/auth-slice";
 import { useDispatch } from "react-redux";
 import { CustomToast } from "../../components/toast";
+import { useToast } from "../../hook/toast/useToast";
 
-type ToastType = "success" | "danger";
-interface ToastData {
-  id: string;
-  message: string;
-  type?: ToastType;
-}
+type LoginRouteProp = RouteProp<ScreensType, "Login">;
 
 export default function Login() {
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<ScreensType>>();
   const { handleNotification } = useDialogNotification();
   const dispatch = useDispatch();
-  const [toast, setToast] = useState<ToastData | null>(null);
   const [focusedField, setFocusedField] = useState<string | null>(null);
   
+  const { toast, showToast, hideToast } = useToast();
 
-  const showToast = (message: string, type: ToastType) => {
-    const id = String(Date.now());
-    setToast({ id, message, type });
-  };
-
-  const hideToast = () => {
-    setToast(null);
-  };
+  const route = useRoute<LoginRouteProp>();
 
   const {
     signIn,
@@ -116,6 +105,15 @@ export default function Login() {
   };
   const [login, { isLoading: isLoadingLoginNormal }] = useLoginMutation();
 
+  useFocusEffect(
+    React.useCallback(() => {
+      const { successMessage, successType } = route.params || {};
+      if (successMessage) {
+        showToast(successMessage, successType);
+      }
+    }, [route.params])
+  );
+
   const onSubmit = async (data: any) => {
     try {
       const response = await login({
@@ -172,6 +170,7 @@ export default function Login() {
                 message={toast.message}
                 type={toast.type}
                 onHide={hideToast}
+                style={{ height: 64, padding: 12 }}
               />
             )}
             <View style={styles.textHeader}>
@@ -215,7 +214,7 @@ export default function Login() {
                       placeholder="Digite seu email"
                       onChangeText={onChange}
                       clearErrors={clearErrors}
-                      focusedField={focusedField} 
+                      focusedField={focusedField}
                       setFocusedField={setFocusedField}
                       value={value}
                     />
@@ -285,7 +284,7 @@ export default function Login() {
                     variant="white"
                     type="fill"
                     size="small"
-                    onPress={() => navigation.navigate("ResetPassword")}
+                    onPress={() => navigation.navigate("ForgotPassword")}
                   >
                     Esqueceu a senha?
                   </Button>
