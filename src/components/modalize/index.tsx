@@ -14,6 +14,9 @@ const CustomModal = () => {
     }
   }, [isOpen]);
 
+ console.log("element:", element);
+ console.log("isValidElement:", React.isValidElement(element));
+
   const handleClose = () => {
     handleModal({ isOpen: false });
   };
@@ -41,7 +44,9 @@ const CustomModal = () => {
             <Text style={styles.titleStyle}>{title}</Text>
           </View>
         )}
-        <View style={styles.container}>{element}</View>
+        <View style={styles.container}>
+          {React.isValidElement(element) ? element : null}
+        </View>
       </View>
     </Modal>
   );
