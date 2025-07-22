@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Keyboard } from "react-native";
 import Modal from "react-native-modal";
 import { useDialogModalState } from "../../hook/handle-modal/hooks/dialog-modal-state";
 import { useDialogModal } from "../../hook/handle-modal/hooks/actions";
+import Typography from "../text";
 
 const CustomModal = () => {
   const { isOpen, element, title } = useDialogModalState();
@@ -41,7 +42,11 @@ const CustomModal = () => {
         <View style={styles.handleIndicator} />
         {title && (
           <View style={styles.containerText}>
-            <Text style={styles.titleStyle}>{title}</Text>
+            {React.isValidElement(title) ? (
+              title
+            ) : (
+              <Typography variant="LG" family="semibold" style={styles.titleStyle}>{title}</Typography>
+            )}
           </View>
         )}
         <View style={styles.container}>
@@ -58,7 +63,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   contentContainer: {
-    backgroundColor: "#fff",
+    backgroundColor: "#000",
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     minHeight: 100,
@@ -74,10 +79,6 @@ const styles = StyleSheet.create({
   titleStyle: {
     color: "#333",
     textAlign: "center",
-    fontSize: 18,
-    fontStyle: "normal",
-    fontWeight: "600",
-    lineHeight: 28,
   },
   containerText: {
     marginTop: 10,

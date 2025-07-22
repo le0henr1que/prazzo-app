@@ -4,6 +4,7 @@ import { useDialogModal } from "../hook/handle-modal/hooks/actions";
 import { colors } from "../styles/colors";
 import Button from "./button";
 import { Input } from "./input/input.style";
+import { productInformation } from "../services/product";
 
 const CodInsert = ({ navigation }: any) => {
   const { handleModal } = useDialogModal();
@@ -14,8 +15,15 @@ const CodInsert = ({ navigation }: any) => {
   } = useForm();
 
   const onSubmit = (data: any) => {
-    console.log("data", data);
-    navigation.navigate("AddProduct", { code: data?.productCode });
+    const productCode =
+      typeof data?.productCode === "string"
+        ? data.productCode
+        : String(data?.productCode?.toString?.() || "");
+
+    navigation.navigate("AddProduct", {
+      productInformation: { code: productCode },
+    });
+
     handleModal({ isOpen: false });
   };
 
@@ -66,6 +74,7 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     padding: 0,
     width: "100%",
+    paddingBottom: 40,
   },
   switchTitle: {
     color: "18181B",

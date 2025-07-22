@@ -29,7 +29,7 @@ import Button from "../../components/button";
 function AddProduct() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const route = useRoute();
-  const { productInformation } = route.params as any;
+  const { productInformation, photoUri } = route.params as any;
   const {
     control,
     handleSubmit,
@@ -51,6 +51,14 @@ function AddProduct() {
   const { filters } = useFilterState();
 
   const isLoad = isLoading || isLoadingFile;
+
+  useEffect(() => {
+    if (photoUri) {
+      setValue("imageUrl", photoUri);
+      console.log("BUCETA", photoUri)
+    }
+  }, [photoUri]);
+
   const onSubmit = async (data: any) => {
     try {
       if (filters?.imageUrl?.includes("file://")) {
@@ -80,7 +88,7 @@ function AddProduct() {
         product_id: productInformation?.id,
         batchCode: data?.batch || "",
         productName: data?.name || null,
-        productCode: data.code || null,
+        productCode: data?.code || null,
         unique_price: formatCurrency(data.price),
         supplier_id: data?.supplier || null,
         productQtdItems: data.qtdItems || null,
@@ -152,7 +160,7 @@ function AddProduct() {
               qtdItems,
               price,
               name,
-              imageUrl: productInformation?.imageUrl ?? filters?.imageUrl,
+              imageUrl: photoUri ?? productInformation?.imageUrl ?? filters?.imageUrl,
             }}
           />
           <ScrollView

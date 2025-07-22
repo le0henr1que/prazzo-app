@@ -1,6 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React from "react";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   Image,
@@ -28,6 +28,8 @@ export default function ModifyPassword() {
     formState: { errors },
   } = useForm();
   const { handleNotification } = useDialogNotification();
+
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const newPassword = watch("newPassword");
 
@@ -73,6 +75,8 @@ export default function ModifyPassword() {
                   onChangeText={onChange}
                   value={value}
                   name={"oldPassword"}
+                  focusedField={focusedField}
+                  setFocusedField={setFocusedField}
                 />
               )}
               name="oldPassword"
@@ -103,6 +107,8 @@ export default function ModifyPassword() {
                   onChangeText={onChange}
                   value={value}
                   name={"newPassword"}
+                  focusedField={focusedField}
+                  setFocusedField={setFocusedField}
                 />
               )}
               name="newPassword"
@@ -131,6 +137,8 @@ export default function ModifyPassword() {
                   onChangeText={onChange}
                   value={value}
                   name={"confirmNewPassword"}
+                  focusedField={focusedField}
+                  setFocusedField={setFocusedField}
                 />
               )}
               name="confirmNewPassword"
