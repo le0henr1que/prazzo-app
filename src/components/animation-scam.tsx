@@ -1,9 +1,13 @@
 import { useEffect, useRef } from "react";
 import { Animated, Dimensions, StyleSheet, View } from "react-native";
+import ScannerBorder from "../../assets/scannerBorder";
 
 const ScannerWithAnimation = () => {
   const animation = useRef(new Animated.Value(0)).current;
   const screenWidth = Dimensions.get("window").width;
+
+  const width = 359;
+  const height = 170;
 
   useEffect(() => {
     const startAnimation = () => {
@@ -26,10 +30,10 @@ const ScannerWithAnimation = () => {
     startAnimation();
   }, [animation]);
 
-  // Interpolar o valor animado para mover a linha vermelha verticalmente
+  
   const translateY = animation.interpolate({
     inputRange: [0, 1],
-    outputRange: [100, -100], // Altura dentro do retângulo (ajuste conforme necessário)
+    outputRange: [65, -65], 
   });
 
   return (
@@ -45,11 +49,7 @@ const ScannerWithAnimation = () => {
             },
           ]}
         />
-        {/* Contorno branco */}
-        <View style={styles.borderTopLeft} />
-        <View style={styles.borderTopRight} />
-        <View style={styles.borderBottomLeft} />
-        <View style={styles.borderBottomRight} />
+        <ScannerBorder width={width} height={height} />
       </View>
     </View>
   );
@@ -62,13 +62,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   scannerBox: {
-    width: "80%",
-    height: 250,
+    width: 359,
+    height: 170,
     borderColor: "transparent",
     position: "relative",
     justifyContent: "center",
     alignItems: "center",
   },
+
   redLine: {
     position: "absolute",
     width: "90%",
@@ -83,6 +84,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderTopWidth: 2,
     borderLeftWidth: 2,
+    borderRadius: 16,
     borderColor: "#fff",
   },
   borderTopRight: {
@@ -93,6 +95,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderTopWidth: 2,
     borderRightWidth: 2,
+    borderRadius: 16,
     borderColor: "#fff",
   },
   borderBottomLeft: {
@@ -103,6 +106,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderBottomWidth: 2,
     borderLeftWidth: 2,
+    borderRadius: 16,
     borderColor: "#fff",
   },
   borderBottomRight: {
@@ -113,7 +117,22 @@ const styles = StyleSheet.create({
     height: 40,
     borderBottomWidth: 2,
     borderRightWidth: 2,
+    borderRadius: 16,
     borderColor: "#fff",
+  },
+  horizontalTop: {
+    position: "absolute",
+    top: 0,
+    width: "30%",
+    height: 2,
+    backgroundColor: "#fff",
+  },
+  horizontalBottom: {
+    position: "absolute",
+    bottom: 0,
+    width: "30%",
+    height: 2,
+    backgroundColor: "#fff",
   },
 });
 
