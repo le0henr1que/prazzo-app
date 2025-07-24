@@ -5,14 +5,20 @@ import { colors } from "../styles/colors";
 import Button from "./button";
 import { Input } from "./input/input.style";
 import { productInformation } from "../services/product";
+import Typography from "./text";
+import { CustomInput } from "./input";
+import { useState } from "react";
 
 const CodInsert = ({ navigation }: any) => {
   const { handleModal } = useDialogModal();
   const {
     control,
     handleSubmit,
+    clearErrors,
     formState: { errors },
   } = useForm();
+
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const onSubmit = (data: any) => {
     const productCode =
@@ -39,19 +45,33 @@ const CodInsert = ({ navigation }: any) => {
             control={control}
             rules={{ required: true }}
             render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
+              /*   <TextInput
                 style={errors.productCode ? Input.styleError : Input.style}
                 placeholder="Ex: 1234567890"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
                 keyboardType="numeric"
+              /> */
+              <CustomInput
+                name="productCode"
+                placeholder="Ex: 1234567890"
+                keyboardType="numeric"
+                onChangeText={onChange}
+                onBlur={onBlur}
+                value={value}
+                errors={errors}
+                clearErrors={clearErrors}
+                focusedField={focusedField}
+                setFocusedField={setFocusedField}
               />
             )}
             name="productCode"
           />
           {errors.productCode && (
-            <Text style={Input.errorText}>Código de barras inválido</Text>
+            <Typography variant="SM" family="medium" style={Input.errorText}>
+              Código de barras inválido
+            </Typography>
           )}
         </View>
       </View>
@@ -71,7 +91,7 @@ const CodInsert = ({ navigation }: any) => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 30,
+    paddingTop: 24,
     padding: 0,
     width: "100%",
     paddingBottom: 40,
@@ -82,12 +102,9 @@ const styles = StyleSheet.create({
     fontWeight: 500,
     lineHeight: 24,
   },
-  title: { color: "#212121", fontSize: 18, fontWeight: 600 },
+  title: { color: "#212121"},
   subTitle: {
     color: colors.neutral["500"],
-    fontSize: 16,
-    fontWeight: 400,
-    lineHeight: 24,
     textAlign: "center",
   },
   containerTitle: {
@@ -99,7 +116,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 12,
-    paddingBottom: 24,
+    paddingBottom: 80,
   },
   switch: {},
   containerTitles: {
