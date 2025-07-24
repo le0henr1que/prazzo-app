@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   contentContainer: {
-    backgroundColor: "#000",
+    backgroundColor: "#fff",
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     minHeight: 100,
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   containerText: {
-    marginTop: 10,
+    marginTop: 0,
     justifyContent: "center",
     alignItems: "center",
     width: "100%",

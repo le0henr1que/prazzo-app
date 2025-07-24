@@ -76,7 +76,6 @@ export const Input = StyleSheet.create({
     marginBottom: 8,
   },
   errorText: {
-    fontSize: 12,
     color: colors.danger.default,
     marginTop: 4,
   },
