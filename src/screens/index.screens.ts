@@ -108,7 +108,7 @@ export type ScreensType = {
       params?: { productInformation: any };
     };
   };
-  AddProduct: { productInformation: any };
+  AddProduct: { productInformation: any, photoUri?: any };
   ConfirmCode: undefined;
   StoreRegistrationFlow: {
     email: string;

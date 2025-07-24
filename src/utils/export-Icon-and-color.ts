@@ -5,7 +5,7 @@ export function exportIconAndColor(daysExpired: number) {
     return {
       title: `VENCIDO HÁ ${Math.abs(daysExpired)} DIAS`,
       icon: "trash",
-      color: colors.danger["500"],
+      color: colors.danger.default,
     };
   }
 
@@ -13,7 +13,7 @@ export function exportIconAndColor(daysExpired: number) {
     return {
       title: "AGUARDANDO DATA",
       icon: "alert-circle",
-      color: colors.neutral["800"],
+      color: colors.neutral['900'],
     };
   }
 
@@ -21,7 +21,7 @@ export function exportIconAndColor(daysExpired: number) {
     return {
       title: `VENCE EM ${daysExpired} DIAS`,
       icon: "alert-circle",
-      color: colors.warning["500"],
+      color: colors.warning.default,
     };
   }
 
@@ -29,7 +29,7 @@ export function exportIconAndColor(daysExpired: number) {
     return {
       title: `VENCE EM ${daysExpired} DIAS`,
       icon: "checkmark-circle",
-      color: colors.success["500"],
+      color: colors.success["600"],
     };
   }
 }

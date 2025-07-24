@@ -296,7 +296,7 @@ export default function Login() {
                   size="large"
                   isLoading={isLoading || isLoadingLoginNormal}
                   onPress={handleSubmit(onSubmit)}
-                  disabled={!isFormValid()}
+                  disabled={isLoading || isLoadingLoginNormal || !isFormValid()}
                 >
                   Entrar
                 </Button>

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Platform, PermissionsAndroid, Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import { Camera } from "expo-camera";
 
 export async function requestCameraPermission() {
   if (Platform.OS === "android") {
@@ -14,7 +15,7 @@ export async function requestCameraPermission() {
     return cameraGranted === "granted";
   } else {
     const { status: cameraStatus } =
-      await ImagePicker.requestCameraPermissionsAsync();
+      await Camera.requestCameraPermissionsAsync();
     console.log("camera permission", cameraStatus);
     if (cameraStatus !== "granted") {
       Alert.alert("Permissão de câmera negada.");

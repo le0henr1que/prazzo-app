@@ -8,6 +8,7 @@ import { format, parse } from "date-fns";
 import { exportIconAndColor } from "../../../utils/export-Icon-and-color";
 import { calculateDaysExpired } from "../../../utils/calculate-days-expired";
 import { formatCurrency } from "../../../utils/format-to-money";
+import Typography from "../../../components/text";
 
 export default function CardWatingDate({ product }: { product: any }) {
   let expired_days;
@@ -35,6 +36,7 @@ export default function CardWatingDate({ product }: { product: any }) {
             flexDirection: "row",
             gap: 6,
             alignItems: "center",
+            paddingVertical: 4,
           }}
         >
           {expired_days && (
@@ -50,12 +52,12 @@ export default function CardWatingDate({ product }: { product: any }) {
             />
           )}
           {!expired_days && (
-            <Text style={styles.expiredText}>AGUARDANDO DATA</Text>
+            <Typography variant="XS" family="semibold" style={styles.expiredText}>AGUARDANDO DATA</Typography>
           )}
           {expired_days && (
-            <Text style={styles.expiredText}>
+            <Typography variant="XS" family="semibold" style={styles.expiredText}>
               {exportIconAndColor(calculateDaysExpired(expired_days))?.title}
-            </Text>
+            </Typography>
           )}
         </View>
       </View>
@@ -79,7 +81,7 @@ export default function CardWatingDate({ product }: { product: any }) {
             />
           </View>
           <View style={{ flex: 2 }}>
-            <Text style={styles.normalTitle}>{product?.name}</Text>
+            <Typography variant="SM" family="semibold" style={styles.normalTitle}>{product?.name}</Typography>
             <View
               style={{
                 display: "flex",
@@ -87,19 +89,14 @@ export default function CardWatingDate({ product }: { product: any }) {
                 alignItems: "center",
               }}
             >
-              <Text style={styles.neutralTitle}>Código do produto: </Text>
-              <Text
+              <Typography variant="XS" family="medium" style={styles.neutralTitle}>Código do produto: </Typography>
+              <Typography variant="XS" family="bold"
                 style={{
                   color: "#1F2937",
-                  fontSize: 12,
-                  fontStyle: "normal",
-                  fontWeight: "600",
-                  lineHeight: 20,
-                  letterSpacing: 0,
                 }}
               >
                 {product?.code}
-              </Text>
+              </Typography>
             </View>
             <View
               style={{
@@ -108,19 +105,15 @@ export default function CardWatingDate({ product }: { product: any }) {
                 alignItems: "center",
               }}
             >
-              <Text style={styles.neutralTitle}>Data de validade: </Text>
-              <Text
+              <Typography variant="XS" family="medium" style={styles.neutralTitle}>Data de validade: </Typography>
+              <Typography
+                variant="XS" family="bold"
                 style={{
                   color: "#1F2937",
-                  fontSize: 12,
-                  fontStyle: "normal",
-                  fontWeight: "600",
-                  lineHeight: 20,
-                  letterSpacing: 0,
                 }}
               >
                 {product.date}
-              </Text>
+              </Typography>
             </View>
             <View
               style={{
@@ -129,43 +122,35 @@ export default function CardWatingDate({ product }: { product: any }) {
                 alignItems: "center",
               }}
             >
-              <Text style={styles.neutralTitle}>Local: </Text>
-              <Text
+              <Typography variant="XS" family="medium" style={styles.neutralTitle}>Local: </Typography>
+              <Typography
+                variant="XS" family="bold"
                 style={{
                   color: "#1F2937",
-                  fontSize: 12,
-                  fontStyle: "normal",
-                  fontWeight: "600",
-                  lineHeight: 20,
-                  letterSpacing: 0,
                 }}
               >
                 {product.place}
-              </Text>
+              </Typography>
             </View>
           </View>
           <View style={{ flex: 0 }}>
-            <Text
+            <Typography
+              variant="SM" family="bold"
               style={{
-                color: colors.primary["600"],
-                fontSize: 14,
-                fontStyle: "normal",
-                fontWeight: "600",
-                lineHeight: 20,
-                letterSpacing: 0,
+                color: colors.brand.default,
               }}
             >
               R$ {formatCurrency(product?.price)}
-            </Text>
+            </Typography>
           </View>
         </View>
         <View style={styles.cardDataFooter}>
-          <Text>
+          {/* <Text>
             <ScamBarIcon color={"#0D9488"} />
           </Text>
           <Text style={styles.cardDataTitleFooter}>
             {product.qtdItems} Itens
-          </Text>
+          </Text> */}
         </View>
       </View>
     </View>
@@ -187,8 +172,6 @@ const styles = StyleSheet.create({
   },
   expiredText: {
     color: "#fff",
-    fontSize: 14,
-    fontFamily: typography.fontFamily.semibold,
   },
   header: {
     paddingVertical: 4,
@@ -223,19 +206,10 @@ const styles = StyleSheet.create({
   },
   normalTitle: {
     color: "#1F2937",
-    fontSize: 14,
-    fontStyle: "normal",
-    fontWeight: "600",
-    lineHeight: 20,
-    letterSpacing: 0,
+  
   },
   neutralTitle: {
     color: "#6B7280",
-    fontSize: 12,
-    fontStyle: "normal",
-    fontWeight: "400",
-    lineHeight: 16,
-    letterSpacing: 0,
   },
   cardDataContent: {
     display: "flex",
@@ -249,7 +223,7 @@ const styles = StyleSheet.create({
   },
   cardDataFooter: {
     display: "flex",
-    padding: 2,
+    padding: 8,
     gap: 8,
     width: "100%",
     justifyContent: "flex-start",
