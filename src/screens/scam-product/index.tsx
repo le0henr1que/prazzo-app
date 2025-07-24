@@ -98,33 +98,28 @@ const ScamProduct = () => {
       console.warn("⏳ câmera não pronta ainda!");
       return;
     }
-    console.log("pinto [ScamProduct] capturePhoto start, cameraRef:", cameraRef.current, "isCapturing:", isCapturing);
   if (!cameraRef.current) return console.warn("caralho cameraRef é nulo");
   
     try {
       await cameraRef.current.resumePreview();
-      console.log("xoxota [ScamProduct] calling takePictureAsync...");
+
       setIsCapturing(true);
       const photo = await cameraRef.current.takePictureAsync({
         quality: 0.7,
         skipProcessing: true,
       });
-      console.log("nudes [ScamProduct] picture taken, uri=", photo.uri);
       navigation.push("AddProduct", {
         productInformation: null,
         photoUri: photo.uri,
       });
-      console.log("[ScamProduct] navigation.navigate disparado");
     } catch (err) {
       console.error("Erro ao tirar foto pipi:", err);
       setIsCapturing(false); 
     }  finally {
 
       setIsCapturing(false);
-      console.log("[ScamProduct] isCapturing resetado");
     }
   };
-  
 
 
   const playSound = async () => {
@@ -236,8 +231,8 @@ const ScamProduct = () => {
             <OverlayMask offsetY={40} />
 
             <Typography
-            variant="SM"
-            family="regular"
+              variant="SM"
+              family="regular"
               style={[
                 styles.overlayLabel,
                 {
@@ -255,11 +250,15 @@ const ScamProduct = () => {
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <BackIconcon size={24} color="white" />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>
+            <Typography
+              variant="BASE"
+              family="medium"
+              style={styles.headerTitle}
+            >
               {activeButton == "scanner"
                 ? "Escanear código de barras"
                 : "Tirar foto"}
-            </Text>
+            </Typography>
           </View>
           <TouchableOpacity onPress={toggleTorch}>
             <Lightning
@@ -277,20 +276,27 @@ const ScamProduct = () => {
         {loading && !error && (
           <View style={styles.loadView}>
             <LottieView
-              source={loadScam}
+              source={require("../../../assets/lottie/spiner-load-default.json")}
               autoPlay
               loop
               style={{
-                width: 200,
-                height: 200,
+                width: 65,
+                height: 45,
+                borderRadius: 16,
                 margin: 0,
-                marginTop: -60,
-                marginBottom: -40,
+                marginTop: -10,
+                marginBottom: 10,
                 marginLeft: 0,
                 marginRight: 0,
               }}
             />
-            <Text style={styles.textLoadView}>Escaneando produto...</Text>
+            <Typography
+              variant="BASE"
+              family="medium"
+              style={styles.textLoadView}
+            >
+              Escaneando produto...
+            </Typography>
           </View>
         )}
         {activeButton === "scanner" && (
@@ -319,14 +325,16 @@ const ScamProduct = () => {
                     size={24}
                     color={activeButton === "scanner" ? "white" : "black"}
                   />
-                  <Text
+                  <Typography
+                    variant="SM"
+                    family="medium"
                     style={[
                       styles.label,
                       activeButton === "scanner" && styles.labelActive,
                     ]}
                   >
                     Scanner
-                  </Text>
+                  </Typography>
                 </View>
               </TouchableOpacity>
               <TouchableOpacity
@@ -348,14 +356,16 @@ const ScamProduct = () => {
                     size={24}
                     color={activeButton === "manual" ? "white" : "black"}
                   />
-                  <Text
+                  <Typography
+                    variant="SM"
+                    family="medium"
                     style={[
                       styles.label,
                       activeButton === "manual" && styles.labelActive,
                     ]}
                   >
                     Manual
-                  </Text>
+                  </Typography>
                 </View>
               </TouchableOpacity>
               <TouchableOpacity
@@ -370,14 +380,16 @@ const ScamProduct = () => {
                     size={24}
                     color={activeButton === "camera" ? "white" : "black"}
                   />
-                  <Text
+                  <Typography
+                    variant="SM"
+                    family="medium"
                     style={[
                       styles.label,
                       activeButton === "camera" && styles.labelActive,
                     ]}
                   >
                     Câmera
-                  </Text>
+                  </Typography>
                 </View>
               </TouchableOpacity>
               {activeButton === "camera" && (
@@ -427,8 +439,6 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   label: {
-    fontSize: typography.size.small,
-    fontFamily: typography.fontFamily.medium,
     color: "#000",
     margin: 0,
   },
@@ -458,25 +468,20 @@ const styles = StyleSheet.create({
     borderColor: "#000",
   },
   textLoadView: {
-    color: "#111827",
-    fontSize: 18,
-    fontWeight: 600,
-    lineHeight: 28,
+    color: colors.neutral[7],
   },
   loadView: {
     display: "flex",
     flexDirection: "column",
     position: "absolute",
-    width: "80%",
-    height: 200,
+    width: 197,
+    height: 133,
     backgroundColor: "#FFF",
     zIndex: 999,
     borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
-    left: "10%",
-    top: "50%",
-    transform: [{ translateY: -100 }],
+    top: "45%",
   },
   textButton: { color: "#fff", fontSize: 16, fontWeight: 500, lineHeight: 20 },
   animationScam: {
@@ -488,13 +493,10 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: "white",
-    fontSize: 16,
-    fontWeight: 500,
-    lineHeight: 24,
   },
   overlayBottom: {
     width: "100%",
-    height: 170,
+    height: 150,
     backgroundColor: "#121212",
     position: "absolute",
     bottom: 0,
@@ -525,14 +527,15 @@ const styles = StyleSheet.create({
     zIndex: 0,
   },
   overlayTop: {
-    backgroundColor: "rgba(0, 0, 0, 0.75)",
+    backgroundColor: "#121212",
     width: "100%",
     display: "flex",
     gap: 16,
     position: "absolute",
     zIndex: 2,
-    paddingVertical: 16,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
+    paddingTop: 50,
+    paddingBottom: 14,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
