@@ -11,7 +11,6 @@ export default function OverlayMaskSvg({ offsetY = 0 }: OverlayMaskSvgProps) {
   const holeWidth = 359;
   const holeHeight = 170;
   const holeX = (W - holeWidth) / 2;
-  // aplica o deslocamento vertical
   const holeY = (H - holeHeight) / 2 + offsetY;
   const radius = 20;
 

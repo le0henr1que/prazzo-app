@@ -14,14 +14,10 @@ const ScannerBorder: React.FC<ScannerBorderProps> = ({
   strokeColor = "white",
   strokeWidth = 3,
 }) => {
-  // raio interno desejado
   const r = 20;
-  // meio da espessura do traço
   const halfSt = strokeWidth / 2;
-  // raio efetivo do arco (para que o traço externo fique em r)
   const arcR = r - halfSt;
 
-  // distâncias internas (base)
   const clX = Math.round(width * 0.15);
   const clY = Math.round(height * 0.3);
   const hW = Math.round(width * 0.35);
@@ -32,7 +28,6 @@ const ScannerBorder: React.FC<ScannerBorderProps> = ({
 
   return (
     <Svg width={width} height={height}>
-      {/* Canto superior esquerdo */}
       <Path
         d={`
           M${halfSt},${clY + halfSt}
@@ -47,8 +42,6 @@ const ScannerBorder: React.FC<ScannerBorderProps> = ({
         vectorEffect={vecEff}
         fill="none"
       />
-
-      {/* Canto superior direito */}
       <Path
         d={`
           M${width - clX - halfSt},${halfSt}
@@ -63,8 +56,6 @@ const ScannerBorder: React.FC<ScannerBorderProps> = ({
         vectorEffect={vecEff}
         fill="none"
       />
-
-      {/* Canto inferior esquerdo */}
       <Path
         d={`
           M${halfSt},${height - clY - halfSt}
@@ -79,8 +70,6 @@ const ScannerBorder: React.FC<ScannerBorderProps> = ({
         vectorEffect={vecEff}
         fill="none"
       />
-
-      {/* Canto inferior direito */}
       <Path
         d={`
           M${width - halfSt},${height - clY - halfSt}
@@ -95,8 +84,6 @@ const ScannerBorder: React.FC<ScannerBorderProps> = ({
         vectorEffect={vecEff}
         fill="none"
       />
-
-      {/* Linha horizontal superior */}
       <Line
         x1={sX + halfSt}
         y1={halfSt}
@@ -107,8 +94,6 @@ const ScannerBorder: React.FC<ScannerBorderProps> = ({
         strokeLinecap="round"
         vectorEffect={vecEff}
       />
-
-      {/* Linha horizontal inferior */}
       <Line
         x1={sX + halfSt}
         y1={height - halfSt}
