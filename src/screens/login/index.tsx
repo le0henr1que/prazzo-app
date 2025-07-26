@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import { useFocusEffect, useNavigation, RouteProp, useRoute } from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   Image,
@@ -28,12 +28,21 @@ import { useLoginMutation } from "../../hook/auth/slice/auth-api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setToken } from "../../hook/auth/slice/auth-slice";
 import { useDispatch } from "react-redux";
+import { CustomToast } from "../../components/toast";
+import { useToast } from "../../hook/toast/useToast";
+
+type LoginRouteProp = RouteProp<ScreensType, "Login">;
 
 export default function Login() {
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<ScreensType>>();
   const { handleNotification } = useDialogNotification();
   const dispatch = useDispatch();
+  const [focusedField, setFocusedField] = useState<string | null>(null);
+  
+  const { toast, showToast, hideToast } = useToast();
+
+  const route = useRoute<LoginRouteProp>();
 
   const {
     signIn,
@@ -45,13 +54,19 @@ export default function Login() {
     googleToken,
   } = useAuth();
 
+  interface FormData {
+    email: string;
+    password: string;
+  }
+
   const {
     control,
     handleSubmit,
     formState: { errors },
+    clearErrors,
     setError,
     watch,
-  } = useForm();
+  } = useForm<FormData>();
   const [response, setResponse] = useState<any>(null);
 
   const formValues = watch();
@@ -90,6 +105,15 @@ export default function Login() {
   };
   const [login, { isLoading: isLoadingLoginNormal }] = useLoginMutation();
 
+  useFocusEffect(
+    React.useCallback(() => {
+      const { successMessage, successType } = route.params || {};
+      if (successMessage) {
+        showToast(successMessage, successType);
+      }
+    }, [route.params])
+  );
+
   const onSubmit = async (data: any) => {
     try {
       const response = await login({
@@ -105,22 +129,24 @@ export default function Login() {
       await signIn();
       // Remova: navigation.navigate("Home");
     } catch (e: any) {
-      console.error("Login error:", e);
+      /*  console.error("Login error:", e); */
       if (e.data?.statusCode === 401) {
         setError("email", {
           type: "manual",
-          message: "Email ou senha incorretos",
+          message: "Email inválido",
         });
+        setError("password", {
+          type: "manual",
+          message: "Senha incorreta",
+        });
+        showToast("Erro ao acessar sua conta", "danger");
         return;
       }
-      handleNotification({
-        isOpen: true,
-        variant: "error",
-        title: "Falha no acesso",
-        message:
-          e.data?.messages.join(", ") ||
+      showToast(
+        e.data?.messages?.join(", ") ||
           "Ocorreu um erro ao tentar acessar o app.",
-      });
+        "danger"
+      );
     }
   };
 
@@ -138,15 +164,24 @@ export default function Login() {
             resizeMethod="auto"
             imageStyle={{ left: 140 }}
           >
+            {toast && (
+              <CustomToast
+                key={toast.id}
+                message={toast.message}
+                type={toast.type}
+                onHide={hideToast}
+                style={{ height: 64, padding: 12 }}
+              />
+            )}
             <View style={styles.textHeader}>
               <Image
-                source={require("../../../assets/logo-white.png")}
+                source={require("../../../assets/default/prazologofinal.png")}
                 style={styles.image}
               />
 
               <Typography
                 variant="3XL"
-                family="bold"
+                family="semibold"
                 style={{
                   color: "white",
                   width: "70%",
@@ -160,36 +195,50 @@ export default function Login() {
           <View style={styles.body}>
             <View style={styles.bodyContent}>
               <View style={Input.inputView}>
-                <Text style={Input.label}>Email</Text>
+                <Typography variant="SM" family="semibold" style={Input.label}>
+                  Email
+                </Typography>
                 <Controller
                   control={control}
-                  rules={{ required: true }}
+                  rules={{
+                    required: "O email é obrigatório",
+                    pattern: {
+                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      message: "Email inválido",
+                    },
+                  }}
                   render={({ field: { onChange, onBlur, value } }) => (
                     <CustomInput
                       name="email"
                       errors={errors}
                       placeholder="Digite seu email"
                       onChangeText={onChange}
+                      clearErrors={clearErrors}
+                      focusedField={focusedField}
+                      setFocusedField={setFocusedField}
                       value={value}
                     />
                   )}
                   name="email"
                 />
                 {errors.email && (
-                  <Text style={Input.errorText}>
-                    {typeof errors?.email?.message === "string" &&
-                    errors?.email?.message === ""
-                      ? "Email inválido"
-                      : String(errors?.email?.message)}
-                  </Text>
+                  <Text style={Input.errorText}>{errors.email.message}</Text>
                 )}
               </View>
 
               <View style={Input.inputView}>
-                <Text style={Input.label}>Senha</Text>
+                <Typography variant="SM" family="semibold" style={Input.label}>
+                  Senha
+                </Typography>
                 <Controller
                   control={control}
-                  rules={{ required: true }}
+                  rules={{
+                    required: "A senha é obrigatória",
+                    minLength: {
+                      value: 6,
+                      message: "Senha muito curta",
+                    },
+                  }}
                   render={({ field: { onChange, onBlur, value } }) => (
                     <TouchableOpacity style={Input.inputPassword}>
                       <CustomInput
@@ -198,6 +247,9 @@ export default function Login() {
                         placeholder="Digite sua senha"
                         secureTextEntry={!isPasswordVisible}
                         onChangeText={onChange}
+                        clearErrors={clearErrors}
+                        focusedField={focusedField}
+                        setFocusedField={setFocusedField}
                         value={value}
                       />
 
@@ -213,7 +265,10 @@ export default function Login() {
                   name="password"
                 />
                 {errors.password && (
-                  <Text style={Input.errorText}>Senha é obrigatória.</Text>
+                  <Text style={Input.errorText}>
+                    {" "}
+                    {errors.password.message}
+                  </Text>
                 )}
 
                 <View
@@ -229,7 +284,7 @@ export default function Login() {
                     variant="white"
                     type="fill"
                     size="small"
-                    onPress={() => navigation.navigate("ResetPassword")}
+                    onPress={() => navigation.navigate("ForgotPassword")}
                   >
                     Esqueceu a senha?
                   </Button>
@@ -241,7 +296,7 @@ export default function Login() {
                   size="large"
                   isLoading={isLoading || isLoadingLoginNormal}
                   onPress={handleSubmit(onSubmit)}
-                  disabled={!isFormValid()}
+                  disabled={isLoading || isLoadingLoginNormal || !isFormValid()}
                 >
                   Entrar
                 </Button>
@@ -257,18 +312,13 @@ export default function Login() {
                 }}
               >
                 <View style={styles.line} />
-                <Text
-                  style={{
-                    color: colors.neutral["500"],
-                    fontSize: 12,
-                    fontWeight: "normal",
-                    fontFamily: typography.fontFamily.regular,
-                    lineHeight: 16,
-                    marginHorizontal: 10,
-                  }}
+                <Typography
+                  variant="SM"
+                  family="medium"
+                  style={{ color: colors.neutral["5"] }}
                 >
                   Ou faça login com
-                </Text>
+                </Typography>
                 <View style={styles.line} />
               </View>
               <View
@@ -280,7 +330,7 @@ export default function Login() {
                   gap: 15,
                 }}
               >
-                <View style={{ width: "48.5%", marginTop: 8 }}>
+                <View style={{ width: "100%", marginTop: 8 }}>
                   <Button
                     variant="neutral"
                     type="outlined"
@@ -290,24 +340,12 @@ export default function Login() {
                     Google
                   </Button>
                 </View>
-                <View style={{ width: "48.5%", marginTop: 8 }}>
-                  <Button
-                    variant="neutral"
-                    type="outlined"
-                    onPress={() =>
-                      console.log("Facebook login not implemented yet")
-                    }
-                  >
-                    <Image source={require("../../../assets/facebook.png")} />
-                    Facebook
-                  </Button>
-                </View>
               </View>
               <View />
               <View>
                 <Typography
-                  variant="XS"
-                  family="regular"
+                  variant="SM"
+                  family="medium"
                   style={{
                     marginBottom: 93,
                     textAlign: "center",
@@ -317,14 +355,15 @@ export default function Login() {
                   Não possui conta?
                   <Typography
                     onPress={() => navigation.navigate("Register")}
-                    variant="XS"
+                    variant="SM"
                     family="bold"
                     style={{
                       marginTop: 16,
                       textAlign: "center",
-                      color: colors.primary["600"],
+                      color: colors.brand.default,
                     }}
                   >
+                    {" "}
                     Registre-se
                   </Typography>
                 </Typography>

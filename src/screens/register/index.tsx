@@ -22,6 +22,7 @@ import { Input } from "../../components/input/input.style";
 import { CustomInput } from "../../components/input";
 import Button from "../../components/button";
 import { colors } from "../../styles/colors";
+import Typography from "../../components/text";
 // import { useCodeCheckMutation } from "../../auth/slice/auth-api";
 // import Button from "../../components/Button";
 // import { Input } from "../../components/Input/Input.style";
@@ -42,12 +43,15 @@ export default function Register() {
 
   const [codeCheck, { isLoading, isError }] = useCodeCheckMutation();
   const { handleNotification } = useDialogNotification();
+  const [focusedField, setFocusedField] = useState<string | null>(null);
+
 
   const {
     control,
     handleSubmit,
     formState: { errors },
     watch,
+    clearErrors,
   } = useForm();
 
   const password = watch("password");
@@ -69,9 +73,11 @@ export default function Register() {
       }).unwrap();
 
       navigation.navigate("ConfirmCode", {
+        mode: "register",
         userId: userId?.id,
         email: data.email,
         name: data.name,
+        password: data.password,
       } as never);
     } catch (error: any) {
       handleNotification({
@@ -86,10 +92,10 @@ export default function Register() {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === "ios" ? "padding" : "padding"}
       style={{ flex: 1 }}
     >
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 0 }}>
         <View style={styles.container}>
           <ImageBackground
             source={require("../../../assets/background.png")}
@@ -100,16 +106,20 @@ export default function Register() {
           >
             <View style={styles.textHeader}>
               <Image
-                source={require("../../../assets/logo-white.png")}
+                source={require("../../../assets/default/prazologofinal.png")}
                 style={styles.image}
               />
-              <Text style={styles.title}>Cadastre-se</Text>
+              <Typography variant="3XL" family="semibold" style={styles.title}>
+                Cadastre-se
+              </Typography>
             </View>
           </ImageBackground>
           <View style={styles.body}>
             <View style={styles.bodyContent}>
               <View style={Input.inputView}>
-                <Text style={Input.label}>Nome do usuário</Text>
+                <Typography variant="SM" family="semibold" style={Input.label}>
+                  Nome do usuário
+                </Typography>
                 <Controller
                   control={control}
                   rules={{ required: true }}
@@ -120,6 +130,9 @@ export default function Register() {
                       placeholder="Digite seu nome"
                       onBlur={onBlur}
                       onChangeText={onChange}
+                      clearErrors={clearErrors}
+                      focusedField={focusedField}
+                      setFocusedField={setFocusedField}
                       value={value}
                     />
                   )}
@@ -130,7 +143,9 @@ export default function Register() {
                 )}
               </View>
               <View style={Input.inputView}>
-                <Text style={Input.label}>Email</Text>
+                <Typography variant="SM" family="semibold" style={Input.label}>
+                  Email
+                </Typography>
                 <Controller
                   control={control}
                   rules={{
@@ -147,6 +162,9 @@ export default function Register() {
                       placeholder="Digite seu email"
                       onBlur={onBlur}
                       onChangeText={onChange}
+                      clearErrors={clearErrors}
+                      focusedField={focusedField}
+                      setFocusedField={setFocusedField}
                       value={value}
                     />
                   )}
@@ -159,7 +177,9 @@ export default function Register() {
                 )}
               </View>
               <View style={Input.inputView}>
-                <Text style={Input.label}>Senha</Text>
+                <Typography variant="SM" family="semibold" style={Input.label}>
+                  Senha
+                </Typography>
                 <Controller
                   control={control}
                   rules={{
@@ -180,6 +200,9 @@ export default function Register() {
                         secureTextEntry={!isPasswordVisible}
                         onBlur={onBlur}
                         onChangeText={onChange}
+                        clearErrors={clearErrors}
+                        focusedField={focusedField}
+                        setFocusedField={setFocusedField}
                         value={value}
                       />
 
@@ -201,7 +224,9 @@ export default function Register() {
                 )}
               </View>
               <View style={Input.inputView}>
-                <Text style={Input.label}>Repita sua senha</Text>
+                <Typography variant="SM" family="semibold" style={Input.label}>
+                  Repita sua senha
+                </Typography>
                 <Controller
                   control={control}
                   rules={{
@@ -218,6 +243,9 @@ export default function Register() {
                         secureTextEntry={!isPasswordVisibleConfirmPassword}
                         onBlur={onBlur}
                         onChangeText={onChange}
+                        clearErrors={clearErrors}
+                        focusedField={focusedField}
+                        setFocusedField={setFocusedField}
                         value={value}
                       />
 
@@ -252,38 +280,35 @@ export default function Register() {
                   size="large"
                   isLoading={isLoading}
                   onPress={handleSubmit(onSubmit)}
-                  disabled={Object.keys(errors).length > 0 || !isFormValid()}
+                  disabled={isLoading || Object.keys(errors).length > 0 || !isFormValid()}
                 >
                   Criar conta
                 </Button>
               </View>
               <View />
               <View style={{ flex: 1, justifyContent: "flex-end" }}>
-                <Text
+                <Typography
+                  variant="SM"
+                  family="medium"
                   style={{
                     color: colors.neutral["500"],
-                    fontSize: 14,
-                    fontWeight: "normal",
-                    lineHeight: 20,
                     textAlign: "center",
-                    marginTop: 16,
+                    marginTop: 95,
                   }}
                 >
                   Já possui conta?{" "}
-                  <Text
-                    onPress={() => navigation.navigate("Login")}
+                  <Typography
+                    onPress={() => navigation.navigate("Login", {})}
+                    variant="SM"
+                    family="bold"
                     style={{
-                      color: colors.primary["600"],
-                      fontSize: 14,
-                      fontWeight: "bold",
-                      lineHeight: 20,
+                      color: colors.brand.default,
                       textAlign: "center",
-                      marginTop: 16,
                     }}
                   >
                     Entrar
-                  </Text>
-                </Text>
+                  </Typography>
+                </Typography>
               </View>
             </View>
           </View>

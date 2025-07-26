@@ -10,14 +10,30 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  line: {
+    flex: 1,
+    backgroundColor: colors.neutral["200"],
+    width: "100%",
+    borderWidth: 0.2,
+    opacity: 0.2,
+  },
   buttonContainer: {
     padding: 20,
     width: "100%",
-    gap: 16,
+    gap: 20,
   },
+
   Image: {
     width: "100%",
-    height: 618,
+    height: 570,
+  },
+  logo: {
+    top: 80,
+    position: "absolute",
+    alignSelf: "center",
+    width: 114,
+    height: 29,
+    resizeMode: "contain",
   },
   divContent: {
     flex: 1,
@@ -26,7 +42,7 @@ export const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "flex-start",
     textAlign: "left",
-    paddingTop: 426,
+    paddingTop: 390,
     gap: 13,
     paddingRight: 20,
     paddingBottom: 24,

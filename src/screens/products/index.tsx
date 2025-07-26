@@ -132,7 +132,7 @@ function Products() {
   };
 
   const handleFloatingButtonPress = () => {
-    navigation.navigate("ScamProduct", { isSearch: false });
+    navigation.navigate("ScamProduct", { isSearch: false, screenKey: Date.now().toString() });
   };
   const renderItem = ({ item }: { item: any }) => {
     return <ProductCard item={item} />;

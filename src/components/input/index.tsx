@@ -4,6 +4,8 @@ import { TextInput, TextInputProps, TouchableOpacity } from "react-native";
 import { DataPicker } from "./date-picker";
 import { OptionsInput } from "./options";
 import { Input } from "./input.style";
+import { colors } from "../../styles/colors";
+import { UseFormClearErrors } from "react-hook-form";
 
 export type Variant = "normal" | "password" | "option" | "date";
 
@@ -17,6 +19,9 @@ export interface CustomInputProps extends Omit<TextInputProps, "onChange"> {
   name: string;
   options?: { id: string; label: string }[];
   onChange?: (value: string) => void;
+  clearErrors?: UseFormClearErrors<any>;
+  focusedField?: string | null;
+  setFocusedField: (name: string | null) => void;
 }
 
 export const CustomInput: React.FC<CustomInputProps> = ({
@@ -25,9 +30,12 @@ export const CustomInput: React.FC<CustomInputProps> = ({
   options,
   onChange,
   onChangeText,
+  clearErrors,
+  focusedField,
+  setFocusedField,
   ...props
 }) => {
-  const [isFocused, setIsFocused] = useState(false);
+  const isFocused = focusedField === props.name;
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const hasError = errors && errors[props?.name];
 
@@ -57,8 +65,14 @@ export const CustomInput: React.FC<CustomInputProps> = ({
           errors?.[props.name] && Input.inputError,
           isFocused && Input.inputFocused,
         ]}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
+        placeholderTextColor={
+          hasError ? colors.danger.default : colors.neutral["3"]
+        }
+        onFocus={() => {
+          setFocusedField(props.name);
+          clearErrors?.(props.name);
+        }}
+        onBlur={() => setFocusedField(null)}
         onChangeText={handleChange}
         {...props}
       />
@@ -72,8 +86,11 @@ export const CustomInput: React.FC<CustomInputProps> = ({
             isFocused && Input.inputFocused,
           ]}
           secureTextEntry={!isPasswordVisible}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          onFocus={() => {
+            setFocusedField(props.name);
+            clearErrors?.(props.name);
+          }}
+          onBlur={() => setFocusedField(null)}
           onChangeText={handleChange}
           {...props}
         />

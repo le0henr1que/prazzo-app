@@ -29,37 +29,35 @@ export const styles = StyleSheet.create({
   image: {
     width: 98,
     height: 25,
-    top: 8,
     resizeMode: "contain",
   },
   header: {
     flex: 1,
-    backgroundColor: colors.brand.dark,
+    backgroundColor: colors.primary["700"],
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
-    paddingBottom: 20,
-    // resizeMode: "stretch",
   },
   textHeader: {
     flex: 1,
     width: "100%",
-    gap: 24,
+    gap: 28,
     justifyContent: "center",
     alignItems: "flex-start",
     textAlign: "left",
-    paddingBottom: 25,
-    paddingLeft: 20,
-    paddingTop: 64,
+    paddingLeft: 16,
+    paddingTop: 26,
     paddingRight: 20,
+    height: 188,
   },
-  title: {
-    top: 20,
-    color: "white",
-  },
+
   body: {
     flex: 3,
     backgroundColor: "white",
     width: "100%",
+    height: 415,
+  },
+  backButton: {
+    marginBottom: 5,
   },
 });

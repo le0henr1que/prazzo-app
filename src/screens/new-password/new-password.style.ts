@@ -1,13 +1,12 @@
-import { StyleSheet } from "react-native";
 import { colors } from "../../styles/colors";
-import { typography } from "../../styles/typography";
+import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: "center",
     backgroundColor: "#fff",
     alignItems: "center",
-    justifyContent: "center",
   },
   bodyContent: {
     flex: 1,
@@ -19,47 +18,32 @@ export const styles = StyleSheet.create({
     paddingBottom: 24,
     paddingHorizontal: 20,
   },
-  line: {
-    flex: 1,
-    backgroundColor: colors.neutral["200"],
-    width: "100%",
-    borderWidth: 0.2,
-    opacity: 0.2,
-  },
-  image: {
-    width: 98,
-    height: 25,
-    top: 8,
-    resizeMode: "contain",
-  },
   header: {
     flex: 1,
-    backgroundColor: colors.brand.dark,
+    backgroundColor: colors.primary["700"],
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
-    paddingBottom: 20,
-    // resizeMode: "stretch",
+    resizeMode: "stretch",
+    height: 188,
   },
   textHeader: {
     flex: 1,
     width: "100%",
-    gap: 24,
+    gap: 28,
     justifyContent: "center",
     alignItems: "flex-start",
     textAlign: "left",
-    paddingBottom: 25,
+    paddingBottom: 15,
     paddingLeft: 20,
     paddingTop: 64,
     paddingRight: 20,
   },
   title: {
-    top: 20,
     color: "white",
   },
   body: {
     flex: 3,
-    backgroundColor: "white",
     width: "100%",
   },
 });

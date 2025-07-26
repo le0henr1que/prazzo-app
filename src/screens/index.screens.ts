@@ -7,11 +7,13 @@ import EditDataStore from "./edit-data-store";
 import EditProduct from "./edit-product";
 import EditProfile from "./edit-profile";
 import FAQ from "./FAQ";
+import ForgotPassword from "./forgot-password";
 import Login from "./login";
 import ManageNotifications from "./manage-notifications";
 import ManageStores from "./manage-stores";
 import Members from "./members";
 import ModifyPassword from "./modify-password";
+import NewPassword from "./new-password";
 import Notification from "./notification";
 import OnboardingScreen from "./on-boarding";
 import PlanScreen from "./plan-free";
@@ -30,6 +32,8 @@ const Screens = {
   OnboardingScreen,
   Login,
   Register,
+  ForgotPassword,
+  NewPassword,
   ConfirmCode,
   ScamProduct,
   AddProduct,
@@ -84,13 +88,18 @@ export type ScreensType = {
   PlansManager: undefined;
   ModifyPassword: undefined;
   EditProfile: undefined;
+  ForgotPassword: undefined;
+  NewPassword: undefined;
   Notification: undefined;
   OnboardingScreen: undefined;
   ScamProduct: {
     isSearch?: boolean;
   };
   Profile: undefined;
-  Login: undefined;
+  Login: {
+    successMessage?: string;
+    successType?: "success";
+  };
   Register: undefined;
   ResetPassword: undefined;
   Home: {
@@ -100,7 +109,7 @@ export type ScreensType = {
       params?: { productInformation: any };
     };
   };
-  AddProduct: { productInformation: any };
+  AddProduct: { productInformation: any; photoUri?: any };
   ConfirmCode: undefined;
   StoreRegistrationFlow: {
     email: string;

@@ -6,25 +6,43 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 
 import { useDialogNotification } from "../../hook/notification/hooks/actions";
 import { ScreensType } from "../index.screens";
-import { useVerifyMutation } from "../../hook/auth/slice/auth-api";
+import { useForgotPasswordMutation, useVerifyByPasswordMutation, useVerifyMutation } from "../../hook/auth/slice/auth-api";
 import Button from "../../components/button";
 import { colors } from "../../styles/colors";
+import Typography from "../../components/text";
+import { Input } from "../../components/input/input.style";
+import { CustomToast } from "../../components/toast";
+import { useCodeCheckMutation } from '../../hook/auth/slice/auth-api';
+import { useToast } from "../../hook/toast/useToast";
 
 export default function ConfirmCode() {
   const navigation = useNavigation<NativeStackNavigationProp<ScreensType>>();
   const route = useRoute();
-  const { email, name } = route.params as any;
+  const { mode, email, name, password } = route.params as {
+    mode:  "register" | "reset";
+    email: string;
+    name?: string;
+    password?: string;
+  };
+  
 
   const [code, setCode] = useState(["", "", "", ""]);
   const [timer, setTimer] = useState(62);
+  const [resendCode ] = useCodeCheckMutation();
+  const [resendResetCode] = useForgotPasswordMutation();
+  const [loadingResend, setLoadingResend] = useState(false);
+
   const inputs = useRef<(TextInput | null)[]>([]);
+  const [hasError, setHasError] = useState(false);
 
   const [focusIndex, setFocusIndex] = useState<number | null>(null);
+  const {toast, showToast, hideToast} = useToast();
 
   const handleInputChange = async (text: any, index: any) => {
     const newCode = [...code];
@@ -57,37 +75,84 @@ export default function ConfirmCode() {
     timer % 60 < 10 ? "0" : ""
   }${timer % 60}`;
 
-  const [verify, { isLoading }] = useVerifyMutation();
+  const handleResendCode = async () => {
+    console.log('Tentando reenviar código...');
+    try {
+      setLoadingResend(true); 
+      if (mode === "register") {
+        await resendCode({
+          email,
+          name: name!,
+          password: password!,
+        }).unwrap();
+      } else if (mode === "reset") {
+        await resendResetCode({ email }).unwrap();
+      }
+      showToast("Código reenviado com sucesso!", "success");
+      setTimer(62);
+    } catch (err: any) {
+      console.log("Erro completo:", JSON.stringify(err, null, 2));
+      showToast(err?.data?.message || "Erro ao reenviar código.", "danger");
+    } finally{
+      setLoadingResend(false);
+    }
+  };
+
+  const [verify, { isLoading: loadingRegister }] = useVerifyMutation();
+  const [verifyReset, { isLoading: loadingReset }] =
+    useVerifyByPasswordMutation();
+  const isLoading = mode === "register" ? loadingRegister : loadingReset;
   const { handleNotification } = useDialogNotification();
 
   const handleValidateCode = async (code: string) => {
     try {
-      const result = await verify({
-        email,
-        token: code,
-      }).unwrap();
-      console.log(result);
-      navigation.navigate("StoreRegistrationFlow", { ...result, name });
+      if (mode === "register") {
+        const result = await verify({
+          email,
+          token: code,
+        }).unwrap();
+        setHasError(false);
+        console.log(result);
+        navigation.navigate("StoreRegistrationFlow", { ...result, name });
+      } else {
+        const { access_token } = await verifyReset({
+          email,
+          token: code,
+        }).unwrap();
+      navigation.navigate("NewPassword", {
+          email,
+          accessToken: access_token,
+        } as any);
+      }
     } catch (error: any) {
-      handleNotification({
-        isOpen: true,
-        variant: "error",
-        title: "Erro ao validar código",
-        message: error?.data?.messages[0] || "Ocorreu um erro",
-      });
+      setHasError(true);
+      showToast("Código de confirmação inválido", "danger"); 
     }
   };
 
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.container}>
+      {toast && (
+        <CustomToast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onHide={hideToast}
+          style={{ alignSelf: "center" }}
+        />
+      )}
       <View></View>
       <View>
-        <Text style={styles.title}>Insira o código de confirmação</Text>
-        <Text style={styles.subtitle}>
+        <Typography variant="XL" family="bold" style={styles.title}>
+          Insira o código de confirmação
+        </Typography>
+        <Typography variant="SM" family="medium" style={styles.subtitle}>
           Um código de 4 dígitos foi enviado para o email
           {"\n"}
-          <Text style={styles.email}>{email}</Text>
-        </Text>
+          <Typography variant="SM" family="medium" style={styles.email}>
+            {email}
+          </Typography>
+        </Typography>
 
         <View style={styles.codeInputContainer}>
           {code.map((digit, index) => (
@@ -98,7 +163,9 @@ export default function ConfirmCode() {
                 inputs.current[index] = ref;
               }}
               style={[
-                focusIndex === index ? styles.focusedStyle : styles.input,
+                styles.input,
+                focusIndex === index && styles.focusedStyle,
+                hasError && Input.inputError,
               ]}
               keyboardType="number-pad"
               textContentType="oneTimeCode"
@@ -123,16 +190,32 @@ export default function ConfirmCode() {
           variant="primary"
           type="fill"
           size="large"
-          isLoading={isLoading}
-          disabled={false}
+          isLoading={isLoading || loadingResend}
+          disabled={isLoading || loadingResend}
         >
-          Validar código
+          {isLoading
+            ? "Validando..."
+            : loadingResend
+            ? "Reenviando código..."
+            : "Validar código"}
         </Button>
-
-        <Text style={styles.resendText}>
-          Não recebeu o código?{" "}
-          <Text style={styles.timer}>Aguarde {formattedTimer}</Text>
-        </Text>
+        {timer > 0 ? (
+          <Typography variant="BASE" family="medium" style={styles.resendText}>
+            Não recebeu o código?{" "}
+            <Typography variant="BASE" family="medium" style={styles.timer}>
+              Aguarde {formattedTimer}
+            </Typography>
+          </Typography>
+        ) : (
+          <Button
+            onPress={handleResendCode}
+            type="ghost"
+            size="large"
+            disabled={false}
+          >
+            Reenviar código
+          </Button>
+        )}
       </View>
     </KeyboardAvoidingView>
   );
@@ -145,23 +228,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
   },
   title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    lineHeight: 28,
     textAlign: "center",
     marginBottom: 8,
   },
   subtitle: {
-    fontSize: 14,
     textAlign: "center",
     marginBottom: 40,
     color: colors.neutral["500"],
-    fontWeight: "normal",
-    lineHeight: 20,
   },
   email: {
     fontWeight: "normal",
-    color: colors.primary["600"],
+    color: colors.brand.default,
   },
   codeInputContainer: {
     flexDirection: "row",
@@ -194,13 +271,9 @@ const styles = StyleSheet.create({
   resendText: {
     marginTop: 16,
     textAlign: "center",
-    fontWeight: "normal",
-    lineHeight: 24,
     color: colors.neutral["900"],
   },
   timer: {
-    fontWeight: "normal",
-    lineHeight: 24,
     color: colors.neutral["500"],
   },
   focusedStyle: {
