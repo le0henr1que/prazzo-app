@@ -10,7 +10,7 @@ import ListPlan from "./components/list-plan";
 import Button from "../../components/button";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function PlanScreen() {
+export default function PlanPro() {
   const navigation = useNavigation();
   return (
     <SafeAreaView style={styles.container} edges={["bottom"]}>
@@ -46,11 +46,12 @@ export default function PlanScreen() {
 
       <View style={styles.bottomDown}>
         <Button
-          type="fill"
+          type="outlined"
+          variant="danger"
           size="large"
-          onPress={() => navigation.navigate("PlansManager")}
+          onPress={() => console.log("Assinar")}
         >
-          Seja premium por R$ 39,99/mês
+          Cancelar Assinatura
         </Button>
       </View>
     </SafeAreaView>

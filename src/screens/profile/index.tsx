@@ -36,7 +36,7 @@ function Profile() {
   const { name } = user?.subscription?.plan || { name: Plan.FREE };
   const [refreshing, setRefreshing] = useState(false);
   const dispatch = useDispatch();
-
+  const redirectTo = name === Plan.FREE ? "PlanScreen" : "PlanPro";
   // PanResponder para detectar o gesto de puxar
   const panResponder = useRef(
     PanResponder.create({
@@ -285,7 +285,7 @@ function Profile() {
             flexDirection: "row",
             justifyContent: "space-between",
           }}
-          onPress={() => navigation.navigate("PlanScreen")}
+          onPress={() => navigation.navigate(redirectTo)}
         >
           <View style={{ display: "flex", flexDirection: "row", gap: 8 }}>
             <Ionicons

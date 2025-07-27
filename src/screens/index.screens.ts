@@ -17,7 +17,7 @@ import NewPassword from "./new-password";
 import Notification from "./notification";
 import OnboardingScreen from "./on-boarding";
 import PlanScreen from "./plan-free";
-import { PlanPremium } from "./plan-premium";
+import PlanPro from "./plan-pro";
 import PlansManager from "./plans-manager";
 import Profile from "./profile";
 import Register from "./register";
@@ -42,7 +42,7 @@ const Screens = {
   EditProfile,
   ModifyPassword,
   PlansManager,
-  PlanPremium,
+  PlanPro,
   FAQ,
   ManageNotifications,
   Members,
@@ -64,6 +64,7 @@ export type ScreensType = {
   PlanScreen: undefined;
   CreateStore: undefined;
   LoadingScreen: undefined;
+  PlanPro: undefined;
   AddBatch: undefined;
   EditProduct: {
     productCode: string;
