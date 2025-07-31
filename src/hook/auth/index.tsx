@@ -357,6 +357,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setAuthenticated: setIsAuthenticated,
         googleToken,
         switchStore,
+        // switchPlan,
         signOut,
         registerAndLogin,
         currentStore,

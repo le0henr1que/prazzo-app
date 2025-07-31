@@ -55,6 +55,12 @@ export default function StackPrivateRoute() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
+        name="PlanScreenLoad"
+        component={Screen.PlanScreenLoad}
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
         name="PlanPro"
         component={Screen.PlanPro}
         options={{ headerShown: false }}

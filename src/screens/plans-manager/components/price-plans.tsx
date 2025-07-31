@@ -4,9 +4,15 @@ import Typography from "../../../components/text";
 import { colors } from "../../../styles/colors";
 import { Ionicons } from "@expo/vector-icons";
 
-const PricingPlans: React.FC = () => {
-  const [selectedPlan, setSelectedPlan] = useState<string>("annual");
+interface PricingPlansProps {
+  selectedPlan: string;
+  setSelectedPlan: (planId: string) => void;
+}
 
+const PricingPlans: React.FC<PricingPlansProps> = ({
+  selectedPlan,
+  setSelectedPlan,
+}) => {
   const handlePlanSelect = (planId: string) => {
     setSelectedPlan(planId);
   };

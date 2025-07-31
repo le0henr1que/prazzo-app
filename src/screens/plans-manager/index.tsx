@@ -13,9 +13,105 @@ import { head } from "lodash";
 import { Text } from "react-native";
 import { Image } from "react-native";
 import PricingPlans from "./components/price-plans";
+import { Alert, Platform } from "react-native";
+import { useEffect, useState } from "react";
+import * as RNIap from "react-native-iap";
+
+const subscriptionSkus = ["pro_teste_prazzo", "pro_teste_prazzo"];
 
 export default function PlansManager() {
   const navigation = useNavigation();
+  const [subscriptions, setSubscriptions] = useState<RNIap.Subscription[]>([]);
+  const [selectedPlan, setSelectedPlan] = useState<string>("");
+  // TODO: Replace with actual mutation
+  const createPaymentRequest = async () =>
+    Promise.resolve({ unwrap: () => Promise.resolve() });
+
+  useEffect(() => {
+    const purchaseUpdateSubscription = RNIap.purchaseUpdatedListener(
+      (purchase) => {
+        // Aqui é chamado quando a compra é concluída e a modal fecha
+        console.log("Compra concluída:", purchase);
+        // Extrai os dados necessários da compra
+        const googlePlanId = purchase?.productId ?? "";
+        const paymentToken = (purchase as any)?.purchaseToken ?? "";
+        navigation.navigate("PlanScreenLoad", {
+          googlePlanId,
+          paymentToken,
+        });
+      }
+    );
+
+    return () => {
+      purchaseUpdateSubscription?.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    const initIAP = async () => {
+      try {
+        const connected = await RNIap.initConnection();
+        if (connected) {
+          const subs = await RNIap.getSubscriptions({
+            skus: subscriptionSkus,
+          });
+          setSubscriptions(subs);
+        }
+      } catch (err) {
+        console.error("Erro ao inicializar IAP:", err);
+      }
+    };
+    initIAP();
+
+    return () => {
+      RNIap.endConnection();
+    };
+  }, []);
+  const handleStartTrial = async () => {
+    try {
+      if (subscriptions.length === 0) {
+        // Alert.alert("Assinatura não encontrada");
+        console.log("Assinatura não encontrada");
+        return;
+      }
+      const subscription = subscriptions[0];
+      if (Platform.OS === "android") {
+        // Para Android: buscar a oferta
+        const { subscriptionOfferDetails } = subscription as any;
+        if (subscriptionOfferDetails && subscriptionOfferDetails.length > 0) {
+          const offerToken = subscriptionOfferDetails[0].offerToken;
+          const responseSubs = await RNIap.requestSubscription({
+            sku: subscription.productId,
+            subscriptionOffers: [
+              {
+                sku: subscription.productId,
+                offerToken: offerToken,
+              },
+            ],
+            andDangerouslyFinishTransactionAutomaticallyIOS: false,
+          });
+          console.log({
+            googlePlanId: subscription.productId,
+            paymentToken: (responseSubs as any)[0]?.purchaseToken || "",
+          });
+
+          console.log("Assinatura iniciada:", responseSubs);
+        } else {
+          Alert.alert("Não há ofertas disponíveis para esta assinatura.");
+        }
+      } else {
+        // iOS
+        await RNIap.requestSubscription({
+          sku: subscription.productId,
+          andDangerouslyFinishTransactionAutomaticallyIOS: false,
+        });
+      }
+    } catch (err) {
+      console.error("Erro ao assinar:", err);
+      Alert.alert("Erro ao assinar", String(err));
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={["bottom", "top"]}>
       <View style={styles.headerContainer}>
@@ -146,11 +242,19 @@ export default function PlansManager() {
         style={styles.contentBottom}
         showsVerticalScrollIndicator={false}
       >
-        <PricingPlans />
+        <PricingPlans
+          selectedPlan={selectedPlan}
+          setSelectedPlan={setSelectedPlan}
+        />
       </ScrollView>
 
       <View style={styles.bottomDown}>
-        <Button type="fill" size="large" onPress={() => console.log("Assinar")}>
+        <Button
+          type="fill"
+          size="large"
+          onPress={handleStartTrial}
+          disabled={!selectedPlan}
+        >
           Começar 1 semana grátis
         </Button>
         <Typography variant={"SM"} family={"medium"} color={colors.neutral[6]}>

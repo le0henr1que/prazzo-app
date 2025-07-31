@@ -16,13 +16,14 @@ export const subscriptionInformation = apiSlice.injectEndpoints({
       { googlePlanId: string; paymentToken: string }
     >({
       query: ({ googlePlanId, paymentToken }) => ({
-        url: `/subscription/google-payment`,
+        url: `/subscription/verify`,
         method: "POST",
         body: {
           googlePlanId,
           paymentToken,
         },
       }),
+      invalidatesTags: Object.values(Tags),
     }),
   }),
 });

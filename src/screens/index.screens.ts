@@ -19,6 +19,7 @@ import OnboardingScreen from "./on-boarding";
 import PlanScreen from "./plan-free";
 import PlanPro from "./plan-pro";
 import PlansManager from "./plans-manager";
+import PlanScreenLoad from "./plans-manager/components/plan-screen-load";
 import Profile from "./profile";
 import Register from "./register";
 import ScamProduct from "./scam-product";
@@ -58,9 +59,11 @@ const Screens = {
   TermsScreen,
   LoadingScreen: RedirectTo,
   PlanScreen,
+  PlanScreenLoad,
 };
 
 export type ScreensType = {
+  PlanScreenLoad: undefined;
   PlanScreen: undefined;
   CreateStore: undefined;
   LoadingScreen: undefined;
