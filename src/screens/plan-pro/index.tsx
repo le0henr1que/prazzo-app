@@ -1,17 +1,136 @@
-"use client";
-
-import { Ionicons } from "@expo/vector-icons";
+import React, { useState } from "react";
+import { StyleSheet, View, TouchableOpacity } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
-import Header from "../../components/header";
 import Typography from "../../components/text";
+import Button from "../../components/button";
+import Header from "../../components/header";
 import CardPlan from "./components/card";
 import ListPlan from "./components/list-plan";
-import Button from "../../components/button";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { colors } from "../../styles/colors";
+import { useDialogModal } from "../../hook/handle-modal/hooks/actions";
+import * as RNIap from "react-native-iap";
+import { useDispatch } from "react-redux";
+import { apiSlice } from "../../services/http";
+import { Tags } from "../../utils/tags";
 
-export default function PlanPro() {
+export default function PlanProScreen() {
   const navigation = useNavigation();
+  const { handleModal } = useDialogModal();
+  const [loading, setLoading] = useState(false);
+
+  // Função para cancelar assinatura Google
+  const handleCancelSubscription = async () => {
+    setLoading(true);
+    try {
+      // Buscar todas as assinaturas ativas do usuário
+      const subscriptions = await RNIap.getAvailablePurchases();
+      // Encontrar a assinatura do produto (ajuste conforme seu productId)
+      const subscription = subscriptions.find(
+        (sub) => sub.productId && sub.productId.includes("")
+      ); // ajuste se necessário
+      if (!subscription) {
+        handleModal({
+          isOpen: true,
+          element: (
+            <>
+              <Typography
+                variant="BASE"
+                family="bold"
+                style={{ textAlign: "center", marginBottom: 8 }}
+              >
+                Nenhuma assinatura ativa encontrada.
+              </Typography>
+            </>
+          ),
+        });
+        setLoading(false);
+        return;
+      }
+      // Cancelamento: abrir URL de gerenciamento de assinaturas Google
+      await RNIap.deepLinkToSubscriptionsAndroid({
+        sku: subscription.productId,
+      });
+
+      // Opcional: exibir modal de confirmação
+      handleModal({
+        isOpen: true,
+        element: (
+          <>
+            <Typography
+              variant="BASE"
+              family="bold"
+              style={{ textAlign: "center", marginBottom: 8 }}
+            >
+              Assinatura cancelada ou gerencie no Google Play.
+            </Typography>
+            <Button
+              type="fill"
+              size="large"
+              onPress={() => {
+                handleModal({ isOpen: false });
+                navigation.navigate("Home" as never);
+              }}
+            >
+              Voltar para Home
+            </Button>
+          </>
+        ),
+      });
+    } catch (error) {
+      handleModal({
+        isOpen: true,
+        element: (
+          <>
+            <Typography
+              variant="BASE"
+              family="bold"
+              style={{
+                textAlign: "center",
+                marginBottom: 8,
+                color: colors.danger[600],
+              }}
+            >
+              Erro ao cancelar assinatura. Tente novamente.
+            </Typography>
+          </>
+        ),
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Confirmação antes de cancelar
+  const confirmCancel = () => {
+    handleModal({
+      isOpen: true,
+      title: "Cancelar assinatura",
+      element: (
+        <>
+          <Typography
+            variant="BASE"
+            family="bold"
+            style={{ textAlign: "center", marginBottom: 8 }}
+          >
+            Tem certeza que deseja cancelar sua assinatura?
+          </Typography>
+          <View>
+            <Button
+              variant="danger"
+              size="large"
+              isLoading={loading}
+              onPress={handleCancelSubscription}
+            >
+              Confirmar Cancelamento
+            </Button>
+          </View>
+        </>
+      ),
+    });
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={["bottom"]}>
       <Header.Root>
@@ -43,13 +162,13 @@ export default function PlanPro() {
           <ListPlan />
         </View>
       </View>
-
       <View style={styles.bottomDown}>
         <Button
           type="outlined"
           variant="danger"
           size="large"
-          onPress={() => console.log("Assinar")}
+          isLoading={loading}
+          onPress={confirmCancel}
         >
           Cancelar Assinatura
         </Button>

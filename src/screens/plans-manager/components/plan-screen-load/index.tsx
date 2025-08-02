@@ -9,7 +9,165 @@ import { useDialogModal } from "../../../../hook/handle-modal/hooks/actions";
 import { Text } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useCreatePaymentRequestMutation } from "../../../../services/subscription";
+import Button from "../../../../components/button";
+import { Ionicons } from "@expo/vector-icons";
 
+const AlertStatusOk = () => {
+  const { handleModal } = useDialogModal();
+
+  return (
+    <View>
+      <SafeAreaView edges={["bottom"]}>
+        <View
+          style={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            paddingVertical: 24,
+            paddingHorizontal: 16,
+            alignContent: "center",
+            gap: 12,
+          }}
+        >
+          <LottieView
+            source={require("../../../../../assets/lottie/JAjQ58rkNt.json")}
+            autoPlay
+            loop={false}
+            style={styles.animationCard}
+          />
+          <View
+            style={{
+              width: "100%",
+              alignItems: "center",
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+            }}
+          >
+            <Typography
+              variant="LG"
+              family="semibold"
+              color={colors.neutral[7]}
+            >
+              Parabéns, agora você é{" "}
+              <Text style={{ color: colors.brand.default }}>PRO</Text>{" "}
+            </Typography>
+            <Typography
+              variant="BASE"
+              family="regular"
+              color={colors.neutral[6]}
+              style={{ textAlign: "center" }}
+            >
+              Aproveite todos os benefícios que o aplicativo oferece no plano
+              PRO{" "}
+            </Typography>
+          </View>
+        </View>
+        <View
+          style={{
+            paddingTop: 16,
+            paddingHorizontal: 16,
+            width: "100%",
+            borderTopWidth: 1,
+            borderColor: colors.neutral[3],
+          }}
+        >
+          <Button
+            type="fill"
+            size="large"
+            onPress={() => {
+              handleModal({
+                isOpen: false,
+              });
+            }}
+          >
+            Aproveitar plano
+          </Button>
+        </View>
+      </SafeAreaView>
+    </View>
+  );
+};
+const AlertStatusError = () => {
+  const { handleModal } = useDialogModal();
+
+  return (
+    <View>
+      <SafeAreaView edges={["bottom"]}>
+        <View
+          style={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            paddingVertical: 24,
+            paddingHorizontal: 16,
+            alignContent: "center",
+            gap: 12,
+          }}
+        >
+          <Ionicons
+            name="alert-circle-sharp"
+            size={24}
+            color={colors.danger[600]}
+          />
+
+          <View
+            style={{
+              width: "100%",
+              alignItems: "center",
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+            }}
+          >
+            <Typography
+              variant="LG"
+              family="semibold"
+              color={colors.neutral[7]}
+            >
+              Pagamento não realizado
+            </Typography>
+            <Typography
+              variant="BASE"
+              family="regular"
+              color={colors.neutral[6]}
+              style={{ textAlign: "center" }}
+            >
+              Ocorreu um problema ao processar sua compra. Por favor, verifique
+              sua conexão e tente novamente. Se o problema persistir, entre em
+              contato com o suporte.{" "}
+            </Typography>
+          </View>
+        </View>
+        <View
+          style={{
+            paddingTop: 16,
+            paddingHorizontal: 16,
+            width: "100%",
+            borderTopWidth: 1,
+            borderColor: colors.neutral[3],
+          }}
+        >
+          <Button
+            type="fill"
+            size="large"
+            onPress={() => {
+              handleModal({
+                isOpen: false,
+              });
+            }}
+          >
+            Aproveitar plano
+          </Button>
+        </View>
+      </SafeAreaView>
+    </View>
+  );
+};
 export default function PlanScreenLoad() {
   const { handleModal } = useDialogModal();
   const navigation = useNavigation();
@@ -29,14 +187,16 @@ export default function PlanScreenLoad() {
           googlePlanId: googlePlanId ?? "",
           paymentToken: paymentToken ?? "",
         }).unwrap();
-
         navigation.navigate("Home");
-
-        handleModal({ isOpen: true, element: <Text>Teste</Text> });
+        console.log("Processamento de pagamento concluído", "AAAAAAAAAA");
+        handleModal({
+          isOpen: true,
+          element: <AlertStatusOk navigation={navigation} />,
+        });
       } catch (error) {
         handleModal({
           isOpen: true,
-          element: <Text>Erro ao habilitar plano</Text>,
+          element: <AlertStatusError navigation={navigation} />,
         });
       }
     };
@@ -60,7 +220,7 @@ export default function PlanScreenLoad() {
 
       <View style={styles.middleContainer}>
         <LottieView
-          source={require("../../../../../assets/lottie/house-animation.json")}
+          source={require("../../../../../assets/lottie/xnkQTBo0KA.json")}
           autoPlay
           loop
           style={styles.animation}
@@ -109,8 +269,12 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   animation: {
-    width: 500,
-    height: 500,
+    width: 150,
+    height: 96,
+  },
+  animationCard: {
+    width: 190,
+    height: 190,
   },
   phraseText: {
     marginTop: 16,
