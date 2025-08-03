@@ -29,16 +29,24 @@ export default function PlansManager() {
 
   useEffect(() => {
     const purchaseUpdateSubscription = RNIap.purchaseUpdatedListener(
-      (purchase) => {
-        // Aqui é chamado quando a compra é concluída e a modal fecha
-        console.log("Compra concluída:", purchase);
-        // Extrai os dados necessários da compra
-        const googlePlanId = purchase?.productId ?? "";
-        const paymentToken = (purchase as any)?.purchaseToken ?? "";
-        navigation.navigate("PlanScreenLoad", {
-          googlePlanId,
-          paymentToken,
-        });
+      async (purchase) => {
+        // Verifica se a compra está pendente ou já foi consumida/cancelada
+        if (
+          purchase?.purchaseStateAndroid === 1 || // 1 = PURCHASED
+          purchase?.transactionReceipt // iOS: se tem recibo, foi comprado
+        ) {
+          // Aqui é chamado quando a compra é concluída e a modal fecha
+          console.log("Compra concluída:", purchase);
+          const googlePlanId = purchase?.productId ?? "";
+          const paymentToken = (purchase as any)?.purchaseToken ?? "";
+          navigation.navigate("PlanScreenLoad", {
+            googlePlanId,
+            paymentToken,
+          });
+        } else {
+          // Compra não foi concluída, não redireciona
+          console.log("Compra não concluída ou cancelada:", purchase);
+        }
       }
     );
 

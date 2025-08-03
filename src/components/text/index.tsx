@@ -53,7 +53,10 @@ const Typography = ({
   const variantConfig = variantStyles[variant];
 
   const fontFamilyStyle = family
-    ? { fontFamily: typography.fontFamily[family], color: color ?? "#000" }
+    ? {
+        fontFamily: typography.fontFamily[family],
+        color: color ?? "#000",
+      }
     : { color: color ?? "#000" };
 
   return (

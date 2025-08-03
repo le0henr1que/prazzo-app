@@ -1,17 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Dimensions } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import LottieView from "lottie-react-native";
-import { colors } from "../../../../styles/colors";
-import { Image } from "react-native";
+import { useEffect } from "react";
+import { Image, StyleSheet, Text, Vibration, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Button from "../../../../components/button";
 import Typography from "../../../../components/text";
 import { useDialogModal } from "../../../../hook/handle-modal/hooks/actions";
-import { Text } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import { useCreatePaymentRequestMutation } from "../../../../services/subscription";
-import Button from "../../../../components/button";
-import { Ionicons } from "@expo/vector-icons";
-import { Vibration } from "react-native";
+import { colors } from "../../../../styles/colors";
+import { useCancelPlanMutation } from "../../../../services/subscription";
 
 const AlertStatusOk = () => {
   const { handleModal } = useDialogModal();
@@ -169,38 +166,37 @@ const AlertStatusError = () => {
     </View>
   );
 };
-export default function PlanScreenLoad() {
+export default function PlanScreenLoadCancel() {
   const { handleModal } = useDialogModal();
   const navigation = useNavigation();
-  const [createPaymentRequest, { isLoading: isLoadingPaymentMethod }] =
-    useCreatePaymentRequestMutation();
+  const [cancelPlan] = useCancelPlanMutation();
   const route = useRoute();
+
   useEffect(() => {
     const processPayment = async () => {
       try {
-        // Pegue os dados do navigation
         const { googlePlanId, paymentToken } = route.params as {
           googlePlanId?: string;
           paymentToken?: string;
         };
-
-        await createPaymentRequest({
+        // Vibration.vibrate([0, 80, 120, 80]);
+        // console.log("Processamento de pagamento concluído", "AAAAAAAAAA");
+        // handleModal({
+        //   isOpen: true,
+        //   element: <AlertStatusOk />,
+        // });
+        await cancelPlan({
           googlePlanId: googlePlanId ?? "",
           paymentToken: paymentToken ?? "",
         }).unwrap();
+
         navigation.navigate("Home");
-        Vibration.vibrate([0, 80, 120, 80]);
-        console.log("Processamento de pagamento concluído", "AAAAAAAAAA");
-        handleModal({
-          isOpen: true,
-          element: <AlertStatusOk />,
-        });
       } catch (error) {
-        navigation.navigate("Home");
         handleModal({
           isOpen: true,
           element: <AlertStatusError />,
         });
+        navigation.navigate("Home");
       }
     };
 
@@ -222,18 +218,23 @@ export default function PlanScreenLoad() {
       </SafeAreaView>
 
       <View style={styles.middleContainer}>
-        <LottieView
+        {/* <LottieView
           source={require("../../../../../assets/lottie/xnkQTBo0KA.json")}
           autoPlay
           loop
           style={styles.animation}
+        /> */}
+        <Ionicons
+          name="close-circle-outline"
+          size={96}
+          color={colors.danger[600]}
         />
       </View>
 
       <SafeAreaView edges={["bottom"]}>
         <View style={styles.bottomContainer}>
           <Typography variant="BASE" family="regular">
-            Estamos habilitando seu novo plano
+            Aguarde até que o processamento de cancelamento seja concluído
           </Typography>
           <Typography variant="BASE" family="regular">
             Aguarde alguns segundos...

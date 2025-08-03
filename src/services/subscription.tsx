@@ -25,8 +25,25 @@ export const subscriptionInformation = apiSlice.injectEndpoints({
       }),
       invalidatesTags: Object.values(Tags),
     }),
+    cancelPlan: builder.mutation<
+      any,
+      { googlePlanId: string; paymentToken: string }
+    >({
+      query: ({ googlePlanId, paymentToken }) => ({
+        url: `/subscription/status`,
+        method: "POST",
+        body: {
+          googlePlanId,
+          paymentToken,
+        },
+      }),
+      invalidatesTags: Object.values(Tags),
+    }),
   }),
 });
 
-export const { useSubscriptionQuery, useCreatePaymentRequestMutation } =
-  subscriptionInformation;
+export const {
+  useSubscriptionQuery,
+  useCreatePaymentRequestMutation,
+  useCancelPlanMutation,
+} = subscriptionInformation;

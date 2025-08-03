@@ -52,33 +52,16 @@ export default function PlanProScreen() {
       await RNIap.deepLinkToSubscriptionsAndroid({
         sku: subscription.productId,
       });
-
-      // Opcional: exibir modal de confirmação
-      handleModal({
-        isOpen: true,
-        element: (
-          <>
-            <Typography
-              variant="BASE"
-              family="bold"
-              style={{ textAlign: "center", marginBottom: 8 }}
-            >
-              Assinatura cancelada ou gerencie no Google Play.
-            </Typography>
-            <Button
-              type="fill"
-              size="large"
-              onPress={() => {
-                handleModal({ isOpen: false });
-                navigation.navigate("Home" as never);
-              }}
-            >
-              Voltar para Home
-            </Button>
-          </>
-        ),
+      navigation.navigate("PlanScreenLoadCancel", {
+        googlePlanId: subscription.productId,
+        paymentToken: subscription.transactionId,
       });
+      // Opcional: exibir modal de confirmação
     } catch (error) {
+      navigation.navigate("PlanScreenLoadCancel", {
+        googlePlanId: subscription.productId,
+        paymentToken: subscription.transactionId,
+      });
       handleModal({
         isOpen: true,
         element: (
@@ -92,7 +75,7 @@ export default function PlanProScreen() {
                 color: colors.danger[600],
               }}
             >
-              Erro ao cancelar assinatura. Tente novamente.
+              Erro ao processar o cancelamento da assinatura.
             </Typography>
           </>
         ),

@@ -18,6 +18,7 @@ import Notification from "./notification";
 import OnboardingScreen from "./on-boarding";
 import PlanScreen from "./plan-free";
 import PlanPro from "./plan-pro";
+import PlanScreenLoadCancel from "./plan-pro/components/plan-screen-load-cancel";
 import PlansManager from "./plans-manager";
 import PlanScreenLoad from "./plans-manager/components/plan-screen-load";
 import Profile from "./profile";
@@ -60,10 +61,12 @@ const Screens = {
   LoadingScreen: RedirectTo,
   PlanScreen,
   PlanScreenLoad,
+  PlanScreenLoadCancel,
 };
 
 export type ScreensType = {
   PlanScreenLoad: undefined;
+  PlanScreenLoadCancel: undefined;
   PlanScreen: undefined;
   CreateStore: undefined;
   LoadingScreen: undefined;

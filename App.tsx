@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Inter_100Thin,
   Inter_100Thin_Italic,
@@ -30,6 +30,7 @@ import ModalNotification from "./src/components/notification";
 import { AuthProvider } from "./src/hook/auth";
 import Routes from "./src/routes";
 import { store } from "./store/store";
+import LoadSplash from "./src/components/load-splash";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -54,15 +55,21 @@ export default function App() {
     Inter_700Bold_Italic,
     Inter_800ExtraBold_Italic,
   });
+  const [appReady, setAppReady] = useState(false);
 
   useEffect(() => {
     if (loaded || error) {
+      setAppReady(true);
       SplashScreen.hideAsync();
     }
   }, [loaded, error]);
 
   if (!loaded && !error) {
     return null;
+  }
+
+  if (!appReady) {
+    return <LoadSplash />;
   }
 
   return (
