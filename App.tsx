@@ -31,7 +31,9 @@ import { AuthProvider } from "./src/hook/auth";
 import Routes from "./src/routes";
 import { store } from "./store/store";
 import LoadSplash from "./src/components/load-splash";
-
+import "react-native-reanimated";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { BottomSheetModalGlobalProvider } from "./src/hook/modal-provider";
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
@@ -74,17 +76,19 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={styles.container}>
-      <Provider store={store}>
-        <QueryClientProvider client={queryClient}>
-          <ToastProvider>
-            <AuthProvider>
-              <Routes />
-              <CustomModal />
-              <ModalNotification />
-            </AuthProvider>
-          </ToastProvider>
-        </QueryClientProvider>
-      </Provider>
+      <BottomSheetModalGlobalProvider>
+        <Provider store={store}>
+          <QueryClientProvider client={queryClient}>
+            <ToastProvider>
+              <AuthProvider>
+                <Routes />
+                <CustomModal />
+                <ModalNotification />
+              </AuthProvider>
+            </ToastProvider>
+          </QueryClientProvider>
+        </Provider>
+      </BottomSheetModalGlobalProvider>
     </GestureHandlerRootView>
   );
 }
