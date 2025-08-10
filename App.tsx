@@ -75,9 +75,9 @@ export default function App() {
   }
 
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <BottomSheetModalGlobalProvider>
-        <Provider store={store}>
+    <Provider store={store}>
+      <GestureHandlerRootView style={styles.container}>
+        <BottomSheetModalGlobalProvider>
           <QueryClientProvider client={queryClient}>
             <ToastProvider>
               <AuthProvider>
@@ -87,9 +87,9 @@ export default function App() {
               </AuthProvider>
             </ToastProvider>
           </QueryClientProvider>
-        </Provider>
-      </BottomSheetModalGlobalProvider>
-    </GestureHandlerRootView>
+        </BottomSheetModalGlobalProvider>
+      </GestureHandlerRootView>
+    </Provider>
   );
 }
 

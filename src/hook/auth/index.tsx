@@ -62,6 +62,7 @@ interface AuthContextType {
   setAuthenticated?: (value: boolean) => void;
   isLoadingOnboarding?: boolean;
   isLoadingSwitchStore?: boolean;
+  isError: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -80,13 +81,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useSaveFcmTokenMutation();
   const {
     data: userDataBase,
-    isError,
+    isError: isErrorMe,
     error,
     refetch: refetchUserData,
   } = useMeQuery();
   const [load, setLoad] = useState(false);
   const [refetchToken] = useRefetchTokenMutation();
   const [toGoOnboarding, setToGoOnboarding] = useState(false);
+  const [isError, setIsError] = useState(false);
   const {
     data: dataStore,
     isLoading: isLoadingStore,
@@ -99,6 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const checkAuthentication = async () => {
       setLoad(true);
       setIsLoadingOnboarding(true);
+      setIsError(false);
       console.log("Checking authentication...");
       try {
         const token = await AsyncStorage.getItem("@vencify:token");
@@ -116,6 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } catch (error) {
         console.error("Error checking authentication:", error);
+        setIsError(true);
         setIsAuthenticated(false);
       } finally {
         setLoad(false);
@@ -140,6 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const switchStore = useCallback(async (storeId: string) => {
     setLoad(true);
     setLoadingSwitchStore(true);
+    setIsError(false);
     try {
       await switchOrganization({ id: storeId }).unwrap();
       const rtk = await AsyncStorage.getItem("@vencify:refresh_token");
@@ -166,6 +171,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsAuthenticated(true);
     } catch (error) {
       console.error("Error switching store:", error);
+      setIsError(true);
     } finally {
       setLoad(false);
       setLoadingSwitchStore(false);
@@ -174,6 +180,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(async () => {
     setLoad(true);
+    setIsError(false);
     try {
       setIsAuthenticated(true);
       console.log("Attempting to sign in...");
@@ -183,8 +190,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const fcmToken = await messaging().getToken();
       await saveFcmToken({ fcmToken }).unwrap();
       dispatch(setCurrentStore(orgResponse));
-    } catch (errro) {
-      console.error("Error during sign-in:", errro);
+    } catch (error) {
+      console.error("Error during sign-in:", error);
+      setIsError(true);
       setIsAuthenticated(false);
       throw error;
     } finally {
@@ -201,6 +209,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       notification_token: string;
     }) => {
       setLoad(true);
+      setIsError(false);
       try {
         console.log("DATA DO HOOK", data);
         const dataRegister = await register(data).unwrap();
@@ -219,6 +228,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await saveFcmToken({ fcmToken }).unwrap();
 
         setIsAuthenticated(true);
+      } catch (error) {
+        console.error("Error during register and login:", error);
+        setIsError(true);
       } finally {
         setLoad(false);
       }
@@ -228,6 +240,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = useCallback(async () => {
     setLoad(true);
+    setIsError(false);
     try {
       const hasProvious = await GoogleSignin.hasPreviousSignIn();
       if (hasProvious) {
@@ -311,6 +324,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error("Error during Google Sign-In:", error);
+      setIsError(true);
       setIsAuthenticated(false);
     } finally {
       setLoad(false);
@@ -320,6 +334,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     setLoad(true);
+    setIsError(false);
     try {
       await AsyncStorage.removeItem("@vencify:token");
       await AsyncStorage.removeItem("@vencify:refresh_token");
@@ -331,6 +346,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setToGoOnboarding(false);
       setIsAuthenticated(false);
+    } catch (error) {
+      console.error("Error during sign out:", error);
+      setIsError(true);
     } finally {
       setLoad(false);
     }
@@ -348,16 +366,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoadingStore ||
     isLoadingFcmToken;
 
+  // Combine all error states
+  const finalIsError = isError || isErrorMe;
+
   return (
     <AuthContext.Provider
       value={{
         signIn,
         signInWithGoogle,
-        // signInWithFacebook,
+        isError: finalIsError,
         setAuthenticated: setIsAuthenticated,
         googleToken,
         switchStore,
-        // switchPlan,
         signOut,
         registerAndLogin,
         currentStore,

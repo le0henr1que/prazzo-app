@@ -31,20 +31,6 @@ function Products() {
     }, [])
   );
 
-  const { openModal, closeModal } = useBottomSheetModal();
-
-  // Exemplo de uso: abrir o bottom sheet com conteúdo customizado
-  // Basta chamar openBottomSheet() para abrir
-
-  const ShortContent = () => <Text>Texto curto</Text>;
-  const LongContent = () => (
-    <>
-      {Array.from({ length: 100 }).map((_, i) => (
-        <Text key={i}>Linha {i + 1}</Text>
-      ))}
-    </>
-  );
-
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -53,27 +39,16 @@ function Products() {
       </View>
 
       {/* Filtros */}
-      <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
+      <View style={{ paddingTop: 41 }}>
         <Filters />
       </View>
 
       {/* Conteudo/Lotes */}
-      <View>
+      <View style={{ marginTop: 16 }}>
         <ContentList />
       </View>
-
-      <Button
-        title="Abrir conteúdo curto"
-        onPress={() => openModal(<ShortContent />)}
-        color="black"
-      />
-      <Button
-        title="Abrir conteúdo longo"
-        onPress={() => openModal(<LongContent />)}
-        color="black"
-      />
-      <Button title="Fechar modal" onPress={closeModal} color="red" />
-
+      {/* 
+     
       {/* Floating Button */}
       <TouchableOpacity
         style={styles.floatingButton}

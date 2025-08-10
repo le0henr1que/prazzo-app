@@ -9,16 +9,22 @@ import React, {
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
-  BottomSheetView,
-  useBottomSheetSpringConfigs,
   BottomSheetBackdrop,
+  useBottomSheetSpringConfigs,
+  BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
-import Animated, { useSharedValue } from "react-native-reanimated";
-import { ScrollView } from "react-native-gesture-handler";
-import { Dimensions, StyleSheet } from "react-native";
+import { Dimensions, StyleSheet, View } from "react-native";
+import { useSharedValue } from "react-native-reanimated";
+import Typography from "../components/text";
+import { colors } from "../styles/colors";
+
+interface contentProps {
+  content: React.ReactNode;
+  title: string;
+}
 
 type ModalContextType = {
-  openModal: (content: React.ReactNode) => void;
+  openModal: (content: contentProps) => void;
   closeModal: () => void;
 };
 
@@ -34,14 +40,17 @@ export const useBottomSheetModal = () => {
 export const BottomSheetModalGlobalProvider = ({
   children,
 }: {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }) => {
   const modalRef = useRef<BottomSheetModal>(null);
-  const [content, setContent] = useState<React.ReactNode | null>(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [modalContent, setModalContent] = useState<React.ReactNode | null>(
+    null
+  );
+  const [modalTitle, setModalTitle] = useState<string>("");
   const windowHeight = useMemo(() => Dimensions.get("window").height, []);
-  const snapPoints = useMemo(() => ["90%"], []);
+  const snapPoints = useMemo(() => ["95%"], []);
   const animatedIndex = useSharedValue(-1);
+
   const animationConfigs = useBottomSheetSpringConfigs({
     damping: 80,
     overshootClamping: true,
@@ -50,33 +59,27 @@ export const BottomSheetModalGlobalProvider = ({
     stiffness: 500,
   });
 
-  const openModal = useCallback((node: React.ReactNode) => {
-    setContent(node);
-    setIsModalVisible(true);
-    animatedIndex.value = 0; // Inicia a animação imediatamente
+  const openModal = useCallback((contentProps: contentProps) => {
+    setModalContent(contentProps?.content);
+    setModalTitle(contentProps?.title);
     setTimeout(() => {
       modalRef.current?.present();
     }, 0);
   }, []);
-
   const closeModal = useCallback(() => {
     modalRef.current?.dismiss();
   }, []);
 
   const onDismiss = useCallback(() => {
-    setContent(null);
-    setIsModalVisible(false);
+    setModalContent(null);
+    setModalTitle("");
     animatedIndex.value = -1;
   }, []);
 
   const handleSheetChanges = useCallback((index: number) => {
     animatedIndex.value = index;
-    if (index === -1) {
-      setIsModalVisible(false);
-    }
   }, []);
 
-  // 🎯 Componente de backdrop usando o oficial do @gorhom
   const renderBackdrop = useCallback(
     (props: any) => (
       <BottomSheetBackdrop
@@ -88,19 +91,17 @@ export const BottomSheetModalGlobalProvider = ({
     ),
     []
   );
-
   return (
     <ModalContext.Provider value={{ openModal, closeModal }}>
       <BottomSheetModalProvider>
         {children}
-
         <BottomSheetModal
           ref={modalRef}
           index={0}
           snapPoints={snapPoints}
-          enablePanDownToClose
-          enableDynamicSizing
-          maxDynamicContentSize={windowHeight * 0.92}
+          enablePanDownToClose={true}
+          enableDynamicSizing={true}
+          maxDynamicContentSize={windowHeight * 0.85}
           animateOnMount
           onDismiss={onDismiss}
           onChange={handleSheetChanges}
@@ -109,15 +110,23 @@ export const BottomSheetModalGlobalProvider = ({
           handleStyle={{ backgroundColor: "transparent" }}
           backdropComponent={renderBackdrop}
         >
-          <BottomSheetView style={styles.sheet}>
-            <ScrollView
-              contentContainerStyle={styles.scrollContent}
-              showsVerticalScrollIndicator={false}
-              bounces={false}
-            >
-              {content}
-            </ScrollView>
-          </BottomSheetView>
+          {modalTitle && (
+            <View style={styles.sheetHeader}>
+              <Typography
+                variant="LG"
+                family="semibold"
+                color={colors.neutral[7]}
+              >
+                {modalTitle}
+              </Typography>
+            </View>
+          )}
+          <BottomSheetScrollView
+            contentContainerStyle={styles.container}
+            showsVerticalScrollIndicator={false}
+          >
+            {modalContent}
+          </BottomSheetScrollView>
         </BottomSheetModal>
       </BottomSheetModalProvider>
     </ModalContext.Provider>
@@ -125,15 +134,35 @@ export const BottomSheetModalGlobalProvider = ({
 };
 
 const styles = StyleSheet.create({
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.4)",
+  container: {
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 40,
+    minHeight: 100, // Altura mínima para pequenos conteúdos
+  },
+  sheetHeader: {
+    width: "100%",
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: colors.neutral[200],
+    paddingBottom: 20,
+    paddingTop: 16,
   },
   sheet: {
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingTop: 10,
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 10,
   },
   scrollContent: {
-    paddingBottom: 40,
+    paddingBottom: 100,
+    flexGrow: 1,
   },
 });

@@ -7,7 +7,7 @@ export default function Filters() {
   return (
     <View style={styles.container}>
       {/* InputSearch */}
-      <View>
+      <View style={{ paddingHorizontal: 16 }}>
         <InputSearch />
       </View>
       {/* PillSearch */}
@@ -19,7 +19,5 @@ export default function Filters() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: {},
 });
