@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Inter_100Thin,
   Inter_100Thin_Italic,
@@ -30,7 +30,10 @@ import ModalNotification from "./src/components/notification";
 import { AuthProvider } from "./src/hook/auth";
 import Routes from "./src/routes";
 import { store } from "./store/store";
-
+import LoadSplash from "./src/components/load-splash";
+import "react-native-reanimated";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { BottomSheetModalGlobalProvider } from "./src/hook/modal-provider";
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
@@ -54,9 +57,11 @@ export default function App() {
     Inter_700Bold_Italic,
     Inter_800ExtraBold_Italic,
   });
+  const [appReady, setAppReady] = useState(false);
 
   useEffect(() => {
     if (loaded || error) {
+      setAppReady(true);
       SplashScreen.hideAsync();
     }
   }, [loaded, error]);
@@ -65,20 +70,26 @@ export default function App() {
     return null;
   }
 
+  if (!appReady) {
+    return <LoadSplash />;
+  }
+
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <Provider store={store}>
-        <QueryClientProvider client={queryClient}>
-          <ToastProvider>
-            <AuthProvider>
-              <Routes />
-              <CustomModal />
-              <ModalNotification />
-            </AuthProvider>
-          </ToastProvider>
-        </QueryClientProvider>
-      </Provider>
-    </GestureHandlerRootView>
+    <Provider store={store}>
+      <GestureHandlerRootView style={styles.container}>
+        <BottomSheetModalGlobalProvider>
+          <QueryClientProvider client={queryClient}>
+            <ToastProvider>
+              <AuthProvider>
+                <Routes />
+                <CustomModal />
+                <ModalNotification />
+              </AuthProvider>
+            </ToastProvider>
+          </QueryClientProvider>
+        </BottomSheetModalGlobalProvider>
+      </GestureHandlerRootView>
+    </Provider>
   );
 }
 

@@ -3,6 +3,9 @@
     "name": "Prazzo",
     "slug": "app",
     "version": "1.0.0",
+    "splash": {
+      "backgroundColor": "#00000000"
+    },
     "orientation": "portrait",
     "icon": "./assets/default/icon.png",
     "userInterfaceStyle": "light",
@@ -45,19 +48,6 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      [
-        "expo-splash-screen",
-        {
-          "backgroundColor": "#247BA0",
-          "image": "./assets/default/noprazo.png",
-          "resizeMode": "contain",
-          "dark": {
-            "image": "./assets/default/noprazo.png",
-            "backgroundColor": "#247BA0"
-          },
-          "imageWidth": 200
-        }
-      ],
       "expo-camera",
       [
         "expo-image-picker",
