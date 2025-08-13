@@ -1,7 +1,7 @@
 import { ScrollView, StyleSheet, View } from "react-native";
 import { colors } from "../../../styles/colors";
 import BatchCard from "../../../components/batch-card";
-
+/* 
 export const batchList = [
   {
     price: 20.0,
@@ -52,7 +52,7 @@ export const batchList = [
     quantity: 5,
     expiredDays: 2,
   },
-];
+]; */
 
 interface Batch {
   batchCode: string;
@@ -62,7 +62,7 @@ interface Batch {
 }
 
 interface Props {
-  batch: Batch[];
+  data: Batch[];
 }
 
 function Lots({ data }: Props) {
@@ -88,8 +88,9 @@ function Lots({ data }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    width: "100%",
+   container: {
+    paddingHorizontal: 16,
+    gap: 8,
   },
   card: {
     backgroundColor: "#fff",

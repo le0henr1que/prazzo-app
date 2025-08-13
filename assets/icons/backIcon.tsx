@@ -7,8 +7,8 @@ interface BackIconconProps {
 }
 
 const BackIconcon: React.FC<BackIconconProps> = ({
-  size = 40,
-  color = "#0D9488",
+  /* size = 40,
+  color = "#0D9488", */
 }) => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
     <Path

@@ -67,6 +67,7 @@ export const batch = apiSlice.injectEndpoints({
 export const {
   useCreateBatchMutation,
   useGetBatchsQuery,
+  useLazyGetBatchsQuery,
   useUpdateBatchMutation,
   useDeleteBatchMutation,
 } = batch;
