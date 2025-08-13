@@ -75,7 +75,7 @@ export const Input = StyleSheet.create({
     color: colors.neutral[7],
     marginBottom: 8,
   },
-  errorText: {
+errorText: {
     color: colors.danger.default,
     marginTop: 4,
   },

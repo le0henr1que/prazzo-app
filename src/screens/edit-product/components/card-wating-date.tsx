@@ -1,16 +1,82 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, View } from "react-native";
 import ScamBarIcon from "../../../../assets/icons/scam-bar";
 import { colors } from "../../../styles/colors";
+import { productInformation } from "../../../services/product";
+import { Package } from "phosphor-react-native";
+import Typography from "../../../components/text";
+import { format, parse, parseISO } from "date-fns";
+import { exportIconAndColor } from "../../../utils/export-Icon-and-color";
+import { calculateDaysExpired } from "../../../utils/calculate-days-expired";
+import { Ionicons } from "@expo/vector-icons";
+import OnboardingBack from "../../../../assets/banner.png";
+import { formatCurrency } from "../../../utils/format-to-money";
+interface Batch {
+  batchCode?: string;
+  category?: string;
+  category_id?: string;
+  expires_at?: string; 
+  id?: string;
+  org?: any; 
+  quantity?: number;
+  section?: string;
+  supplier?: string;
+  unique_price?: number;
+}
+interface Product {
+  name: string;
+  code: string;
+  batches: Batch[];
+}
 
-export default function CardWatingDate({
-  productCode,
-}: {
-  productCode: string;
-}) {
+interface Props {
+  product: Product;
+}
+
+export default function CardWatingDate({ product }: Props) {
+  let expired_days;
+  const expiresAt = product?.batches?.[0]?.expires_at;
+
+  if (expiresAt) {
+    const parsedDate = parseISO(expiresAt); 
+    expired_days = format(parsedDate, "dd/MM/yyyy"); 
+  }
+  const daysExpired = calculateDaysExpired(expiresAt ?? ""); 
+  const style = exportIconAndColor(daysExpired);
   return (
     <View style={styles.cardDate}>
-      <View style={styles.cardDataHeader}>
-        <Text style={styles.cardDataTitle}>Aguardando data</Text>
+      <View
+        style={[
+          styles.cardDataHeader,
+          {
+            backgroundColor: style?.color,
+          },
+        ]}
+      >
+        {!expired_days && (
+          <Typography variant="XS" family="semibold">
+            AGUARDANDO DATA
+          </Typography>
+        )}
+        {expired_days && (
+          <View style={{ flexDirection: "row", gap: 6 }}>
+            <Ionicons
+              name={
+                (exportIconAndColor(calculateDaysExpired(expiresAt ?? ""))
+                  ?.icon as keyof typeof Ionicons.glyphMap) || ""
+              }
+              size={16}
+              color={colors.white}
+              style={{ marginLeft: 8 }}
+            />
+            <Typography
+              variant="XS"
+              family="semibold"
+              style={{ color: colors.white }}
+            >
+              {style?.title}
+            </Typography>
+          </View>
+        )}
       </View>
       <View
         style={{
@@ -25,56 +91,105 @@ export default function CardWatingDate({
         <View style={styles.cardDataContent}>
           <View>
             <Image
-              source={{ uri: "https://via.placeholder.com/60" }}
+              source={ OnboardingBack /* uri: "https://via.placeholder.com/60" */ }
               style={styles.image}
             />
           </View>
-          <View style={{ flex: 2 }}>
-            <Text style={styles.normalTitle}>
-              Wasabi Doritos Pacote Grande 78g
-            </Text>
-            <View
+          <View style={styles.productDetails}>
+            <Typography
+              variant="SM"
+              family="semibold"
+              style={styles.normalTitle}
+            >
+              {product.name}
+            </Typography>
+            
+              <View style={styles.row}>
+                <Typography
+                  variant="XS"
+                  family="medium"
+                  style={styles.neutralTitle}
+                >
+                  Código do produto:{" "}
+                </Typography>
+                <Typography
+                  variant="XS"
+                  family="bold"
+                  style={{
+                    color: colors.neutral[7],
+                  }}
+                >
+                  {product.code}
+                </Typography> 
+              </View>
+              <View style={styles.row}>
+                <Typography
+                  variant="XS"
+                  family="medium"
+                  style={styles.neutralTitle}
+                >
+                  Data de validade:{" "}
+                </Typography>
+              <Typography
+                  variant="XS"
+                  family="bold"
+                  style={{
+                    color: colors.neutral[7],
+                  }}
+                >
+                  {expired_days}
+                </Typography>
+              </View>
+              <View style={styles.row}>
+                <Typography
+                  variant="XS"
+                  family="medium"
+                  style={styles.neutralTitle}
+                >
+                  Local:{" "}
+                </Typography>
+                 <Typography
+                  variant="XS"
+                  family="bold"
+                  style={{
+                    color: colors.neutral[7],
+                  }}
+                >
+                  {product?.batches?.[0]?.section || "N/a"}
+                </Typography> 
+              </View>
+            
+          </View> 
+            <Typography
+              variant="BASE"
+              family="semibold"
               style={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
+                color: colors.brand.default,
               }}
             >
-              <Text style={styles.neutralTitle}>Código do produto: </Text>
-              <Text
-                style={{
-                  color: "#1F2937",
-                  fontSize: 12,
-                  fontStyle: "normal",
-                  fontWeight: "600",
-                  lineHeight: 20,
-                  letterSpacing: 0,
-                }}
-              >
-                {productCode}
-              </Text>
-            </View>
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text
-              style={{
-                color: colors.primary["600"],
-                fontSize: 14,
-                fontStyle: "normal",
-                fontWeight: "600",
-                lineHeight: 20,
-                letterSpacing: 0,
-              }}
-            >
-              R$ 20,00
-            </Text>
-          </View>
+              R$ {formatCurrency(String(product.batches?.[0]?.unique_price))}
+            </Typography>
         </View>
         <View style={styles.cardDataFooter}>
-          <Text>
-            <ScamBarIcon color={"#0D9488"} />
-          </Text>
-          <Text style={styles.cardDataTitleFooter}>0 items</Text>
+          <View style={styles.footerDiv}>
+            <View style={styles.footerItem}>
+              <Package size={16} color={colors.brand.default}/>
+              <Typography variant="XS" family="bold" style={styles.cardDataTitleFooter}>
+                {product.batches?.[0]?.batchCode}
+              </Typography>
+            </View>
+            <View style={styles.footerItem}>
+              <ScamBarIcon size={16} color={colors.brand.default} />
+              <Typography variant="XS" family="bold" style={styles.cardDataTitleFooter}>
+                {product.batches?.[0]?.quantity}
+              </Typography>
+            </View>
+          </View>
+          <View style={styles.categoryFooter}>
+            <Typography variant="XS" family="semibold">
+            {/*  {product.batches?.[0]?.category} */}Animal
+            </Typography>
+          </View>
         </View>
       </View>
     </View>
@@ -89,15 +204,16 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     alignSelf: "stretch",
     borderRadius: 8,
-    backgroundColor: "#FFF",
-    boxShadow: "0px 4px 12px 0px rgba(151, 151, 151, 0.15)",
+    borderWidth: 1,
+    borderColor: colors.neutral[2]
   },
-  image: { width: 80, height: 80, borderRadius: 8, marginRight: 10 },
+  image: { width: 80, height: 79, borderRadius: 4, marginRight: 0 },
   cardDataHeader: {
     display: "flex",
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,
-    padding: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
     alignItems: "flex-start",
     justifyContent: "flex-start",
     gap: 6,
@@ -107,28 +223,13 @@ const styles = StyleSheet.create({
   },
   cardDataTitle: {
     color: "#FFF",
-    fontSize: 12,
-    fontStyle: "normal",
-    fontWeight: "600",
-    lineHeight: 16,
-    letterSpacing: 0,
     textTransform: "uppercase",
   },
   normalTitle: {
-    color: "#1F2937",
-    fontSize: 14,
-    fontStyle: "normal",
-    fontWeight: "600",
-    lineHeight: 20,
-    letterSpacing: 0,
+    color: colors.neutral[7],
   },
   neutralTitle: {
-    color: "#6B7280",
-    fontSize: 12,
-    fontStyle: "normal",
-    fontWeight: "400",
-    lineHeight: 16,
-    letterSpacing: 0,
+    color: colors.neutral[5],
   },
   cardDataContent: {
     display: "flex",
@@ -141,21 +242,44 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   cardDataFooter: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  footerDiv: {
     display: "flex",
     padding: 2,
     gap: 8,
-    width: "100%",
     justifyContent: "flex-start",
     alignItems: "center",
     flexDirection: "row",
   },
   cardDataTitleFooter: {
-    color: colors.primary["600"],
-    fontSize: 12,
-    fontStyle: "normal",
-    fontWeight: "600",
-    lineHeight: 16,
-    letterSpacing: 0,
+    color: colors.brand.default,
     textTransform: "uppercase",
+  },
+  footerItem:{
+    flexDirection: "row",
+    gap: 4,
+  },
+  categoryFooter:{
+    borderRadius: 4,
+    backgroundColor: colors.neutral[1],
+    color: colors.neutral[7],
+    paddingHorizontal: 12,
+    paddingVertical: 2,
+  },
+  productDetails: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "flex-start",
+    gap: 4,
+    flexShrink: 0,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 4, 
   },
 });

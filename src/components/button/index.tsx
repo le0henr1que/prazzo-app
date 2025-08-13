@@ -35,9 +35,11 @@ const Button: React.FC<ButtonProps> = ({
   return (
     <TouchableOpacity
       disabled={disabled || isLoading}
-      style={
-        disabled ? { ...styles.button, ...styleGlobal.disabled } : styles.button
-      }
+      style={[
+        styles.button, 
+        disabled && styleGlobal.disabled, 
+        props.style, 
+      ]}
       {...props}
     >
       {isLoading && (

@@ -13,6 +13,8 @@ import { formatToBRL } from "../utils/format-to-money";
 import ScamBarIcon from "../../assets/icons/scam-bar";
 import { formatDate } from "../utils/format-date";
 import { typography } from "../styles/typography";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import Typography from "./text";
 
 const BatchCard = ({ batch }: any) => {
   const { handleModal } = useDialogModal();
@@ -30,7 +32,7 @@ const BatchCard = ({ batch }: any) => {
     });
   };
 
-  console.log("BAT", batch);
+  console.log("Bunda", batch);
 
   return (
     <TouchableOpacity style={{ width: "100%" }}>
@@ -42,7 +44,7 @@ const BatchCard = ({ batch }: any) => {
             {
               backgroundColor:
                 exportIconAndColor(calculateDaysExpired(batch?.expires_at))
-                  ?.color || colors.neutral["800"],
+                  ?.color || colors.neutral["600"],
             },
           ]}
         >
@@ -54,17 +56,19 @@ const BatchCard = ({ batch }: any) => {
               alignItems: "center",
             }}
           >
-            <TrashIcon />
-            <Text style={styles.expiredText}>
+
+          <Ionicons
+            name={exportIconAndColor(calculateDaysExpired(batch?.expires_at))?.icon || ""}
+            size={13}
+            color={colors.white}
+          />
+            <Typography variant="XS" family="semibold" style={styles.expiredText}>
               {
                 exportIconAndColor(calculateDaysExpired(batch?.expires_at))
                   ?.title
               }
-            </Text>
+            </Typography>
           </View>
-          <TouchableOpacity onPress={() => handlePress()}>
-            <DotsVertical />
-          </TouchableOpacity>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => handlePressProductCard()}>
           <View style={styles.body}>
@@ -78,25 +82,28 @@ const BatchCard = ({ batch }: any) => {
                 }}
               >
                 <View>
-                  <Text style={styles.text}>
-                    Lote:{" "}
-                    <Text style={{ color: colors.neutral["900"] }}>
+                  <Typography variant="SM" family="semibold" style={styles.text}>
+                    Lote{" "}
+                    <Typography variant="SM" family="semibold"style={{ color: colors.neutral[7] }}>
                       {batch.batchCode}
-                    </Text>
-                  </Text>
-                  <Text style={styles.text}>
+                    </Typography>
+                  </Typography>
+                   <Typography variant="XS" family="medium" style={styles.text}>
                     Data de validade:{" "}
-                    {batch?.expires_at
-                      ? formatDate(batch?.expires_at, "dd/MM/yyyy")
-                      : "Sem data"}
-                  </Text>
+                    <Typography variant="XS" family="bold" style={{ color: colors.neutral[7] }}>
+                      {batch?.expires_at
+                        ? formatDate(batch?.expires_at)
+                        : "Sem data"}
+                    </Typography>
+                  </Typography>
                 </View>
-                <Text style={styles.price}>
+                <Typography variant="SM" family="bold" style={styles.price}>
                   {formatToBRL(Number(batch?.unique_price ?? 0))}
-                </Text>
+                </Typography>
               </View>
             </View>
           </View>
+          <View style={styles.separator} />
           <View style={styles.footer}>
             <View
               style={{
@@ -105,9 +112,13 @@ const BatchCard = ({ batch }: any) => {
                 flexDirection: "row",
                 alignItems: "center",
               }}
-            >
-              <ScamBarIcon color={"#0D9488"} />
-              <Text style={styles.quantity}>{batch?.quantity} itens</Text>
+            >  
+            <Ionicons
+              name="bag-outline"   
+              size={15}           
+              color= {colors.brand.default}
+          />  
+            <Typography variant="XS" family="bold" style={styles.quantity}>{batch?.quantity} itens</Typography>
             </View>
           </View>
         </TouchableOpacity>
@@ -137,8 +148,6 @@ const styles = StyleSheet.create({
   },
   expiredText: {
     color: "#fff",
-    fontWeight: "bold",
-    fontSize: 14,
   },
   body: {
     flexDirection: "row",
@@ -163,26 +172,25 @@ const styles = StyleSheet.create({
     width: "85%",
   },
   price: {
-    color: "#007f00",
-    fontWeight: "bold",
-    marginVertical: 5,
-    width: "15%",
+    color: colors.brand.default,
   },
   text: {
-    fontSize: 14,
-    fontFamily: typography.fontFamily.semibold,
-    color: colors.neutral["600"],
+
+    color: colors.neutral[7],
   },
   footer: {
     flexDirection: "row",
     justifyContent: "space-between",
     padding: 10,
-    borderTopWidth: 1,
-    borderColor: "#ddd",
+  },
+  separator: {
+    height: 0.6,
+    width: "95%",
+    marginLeft: "2.5%",
+    backgroundColor: colors.neutral[3],
   },
   quantity: {
-    fontWeight: "bold",
-    color: "#0D9488",
+    color: colors.brand.default,
   },
   category: {
     fontSize: 14,

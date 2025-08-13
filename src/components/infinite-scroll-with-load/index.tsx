@@ -89,7 +89,7 @@ const InfiniteScrollWithLoad: React.FC<InfiniteScrollWithLoadProps> = ({
           onEndReachedThreshold={0.2}
           ListFooterComponent={
             isFetchingMore ? (
-              <ActivityIndicator size="large" color={colors.primary[500]} />
+              <ActivityIndicator size="large" color={colors.primary[600]} />
             ) : null
           }
         />

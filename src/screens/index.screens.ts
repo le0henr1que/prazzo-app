@@ -73,7 +73,7 @@ export type ScreensType = {
   PlanPro: undefined;
   AddBatch: undefined;
   EditProduct: {
-    productCode: string;
+    productCode?: string;
     productInformation?: any;
     batchId?: string;
   };
