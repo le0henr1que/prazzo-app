@@ -26,12 +26,12 @@ export const supplier = apiSlice.injectEndpoints({
     }),
     updateSupplier: builder.mutation<
       any,
-      { id: string; name: string; contactInfo: string }
+      { id: string; name: string; contactInfo: string; version: number}
     >({
-      query: ({ id, name, contactInfo }) => ({
+      query: ({ id, name, contactInfo, version }) => ({
         url: `/supplier/${id}`,
         method: "PUT",
-        body: { name, contactInfo },
+        body: { name, contactInfo, version  },
       }),
       invalidatesTags: [Tags.SUPPLIER],
     }),

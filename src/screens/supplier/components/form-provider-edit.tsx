@@ -1,43 +1,101 @@
+import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
+import { typography } from "../../../styles/typography";
 
-import { useCreateSupplierMutation } from "../../../services/supplier";
+import {
+  useCreateSupplierMutation,
+  useUpdateSupplierMutation,
+} from "../../../services/supplier";
 import { useDialogModal } from "../../../hook/handle-modal/hooks/actions";
 import { Input } from "../../../components/input/input.style";
 import { formatPhoneNumber } from "../../../utils/format-phone-number";
 import Button from "../../../components/button";
 import { colors } from "../../../styles/colors";
+import { useToast } from "../../../hook/toast/useToast";
 
-export const FormProviderAction = () => {
-  const [createSupplier, { isLoading }] = useCreateSupplierMutation();
+type FormProviderProps = {
+  mode?: "create" | "edit";
+  initialData?: {
+    id?: string;
+    name?: string;
+    contactInfo?: string;
+    version?: number; 
+  };
+  onSuccess?: () => void;
+};
+
+export const FormProvider = ({ mode = "create", initialData, onSuccess }: FormProviderProps & { onSuccess?: () => void }) => {
+  const [createSupplier, { isLoading: isCreating }] = useCreateSupplierMutation();
+  const [updateSupplier, { isLoading: isUpdating }] = useUpdateSupplierMutation();
   const { handleModal } = useDialogModal();
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+const { toast, showToast, hideToast } = useToast();
+
+
+ const {
+  control,
+  handleSubmit,
+  setValue,
+  formState: { errors },
+} = useForm({
+  defaultValues: {
+    name: initialData?.name || "",
+    contactInfo: initialData?.contactInfo || "",
+    version: initialData?.version || 0,
+  },
+}); 
+
+
+  // Inicializa os campos sempre que initialData mudar
+  useEffect(() => {
+    if (initialData) {
+      console.log("Inicializando formulário com dados:", initialData);
+      setValue("name", initialData.name || "");
+      setValue("contactInfo", initialData.contactInfo || "");
+      setValue("version", initialData.version || 0);
+    }
+  }, [initialData, setValue]);
 
   const onSubmit = async (data: any) => {
-    const { name, contactInfo } = data;
+    console.log("Submit chamado com dados:", data);
+    const { name, contactInfo, version } = data;
+
     try {
-      await createSupplier({
-        name,
-        contactInfo,
-      }).unwrap();
-    } catch (error) {
-      console.log(error);
-    } finally {
+      if (mode === "edit" && initialData?.id) {
+        console.log("Atualizando fornecedor ID:", initialData.id);
+        await updateSupplier({
+          id: initialData.id,
+          name,
+          contactInfo,
+          version: Number(version),
+        }).unwrap();
+        console.log("Atualizando fornecedor:", { id: initialData.id, name, contactInfo, version });
+        if (onSuccess) onSuccess(updated);
+        showToast('Cadastro realizado com sucesso!', 'success');
+      } else {
+        console.log("Criando novo fornecedor");
+        await createSupplier({
+          name,
+          contactInfo,
+        }).unwrap();
+         showToast('Cadastro realizado com sucesso!', 'success');
+         if (onSuccess) onSuccess(created);
+      }
       handleModal({ isOpen: false });
+      if (onSuccess) onSuccess();
+    } catch (error) {
+      console.error("Erro ao salvar fornecedor:", error);
     }
   };
+
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContent}>
       <View style={styles.formContainer}>
         <View style={styles.formContainerLine}>
           <View style={Input.inputView}>
-            <Text style={Input.label}>Nome do fornecedor </Text>
+            <Text style={styles.label}>Nome do fornecedor</Text>
             <Controller
               control={control}
               rules={{ required: true }}
@@ -54,17 +112,16 @@ export const FormProviderAction = () => {
               name="name"
             />
             {errors.name && (
-              <Text style={Input.errorText}>
-                O campo nome do fornecedor é obrigatório
-              </Text>
+              <Text style={Input.errorText}>Nome do fornecedor é obrigatório</Text>
             )}
           </View>
         </View>
       </View>
+
       <View style={styles.formContainer}>
         <View style={styles.formContainerLine}>
           <View style={Input.inputView}>
-            <Text style={Input.label}>Telefone (Opcional)</Text>
+            <Text style={styles.label}>Número<Text style={styles.subLabel}> (opcional)</Text></Text>
             <Controller
               control={control}
               rules={{ required: false }}
@@ -83,7 +140,9 @@ export const FormProviderAction = () => {
           </View>
         </View>
       </View>
+
       <View style={styles.handleIndicator} />
+
       <View style={styles.buttonContainer}>
         <View style={{ width: "100%", flex: 1 }}>
           <Button variant="neutral" onPress={() => handleModal({ isOpen: false })}>
@@ -91,9 +150,16 @@ export const FormProviderAction = () => {
           </Button>
         </View>
         <View style={{ width: "100%", flex: 1.5 }}>
-          <Button onPress={handleSubmit(onSubmit)} isLoading={isLoading}>
-            Adicionar
-          </Button>
+          <Button
+  onPress={() => {
+    console.log("Clicou no botão");
+    handleSubmit(onSubmit)();
+  }}
+  isLoading={isCreating || isUpdating}
+>
+  {mode === "create" ? "Adicionar" : "Salvar"}
+</Button>
+
         </View>
       </View>
     </ScrollView>
@@ -124,35 +190,28 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingHorizontal: 20,
   },
-  insideContainer: {
-    padding: 15,
-
-    flex: 1,
-  },
-  footerButtom: {
-    display: "flex",
-    width: "100%",
-    padding: 20,
-    justifyContent: "center",
-    gap: 16,
-    backgroundColor: "#FFF",
-    boxShadow: "0px -4px 12px 0px rgba(151, 151, 151, 0.15)",
-  },
   formContainerLine: {
     display: "flex",
     flexDirection: "row",
     gap: 16,
     justifyContent: "space-between",
   },
-  inputWrapper: {
-    flex: 1,
-  },
-   handleIndicator: {
-    alignSelf: 'center',
+  handleIndicator: {
+    alignSelf: "center",
     width: "100%",
     marginTop: 50,
-    height: 1,
-    backgroundColor: "#DEDEDE",
+    height: 2,
+    backgroundColor: colors.neutral[2],
     marginBottom: 12,
-},
+  },
+  subLabel:{
+    color: colors.neutral[6],
+    marginBottom: 8,
+    fontFamily: typography.fontFamily.regular,
+  },
+  label:{
+    color: colors.neutral[7],
+    marginBottom: 8,
+    fontFamily: typography.fontFamily.semibold,
+  },
 });

@@ -35,7 +35,6 @@ export const Input = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     borderColor: colors.danger.default,
-    backgroundColor: colors.danger.default,
     fontSize: typography.size.base,
     lineHeight: typography.lineHeight.base,
     color: colors.neutral["900"],
