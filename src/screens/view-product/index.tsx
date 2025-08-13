@@ -22,6 +22,7 @@ import { formatToBRL } from "../../utils/format-to-money";
 import { formatDate } from "../../utils/format-date";
 import { ClockCountdown, Storefront, User } from "phosphor-react-native";
 import { useDialogModal } from "../../hook/handle-modal/hooks/actions";
+import TabSwitch from "../../components/tab-switch";
 
 function ViewProduct() {
   const params = useRoute();
@@ -49,10 +50,6 @@ function ViewProduct() {
 
   console.log("BATCH com code", batchWithCode);
 
-  const contentSwitch: Record<string, JSX.Element> = {
-    details: <Details data={batchWithCode} />,
-    lots: <Lots data={data?.batches} />,
-  };
   const [activeSwitch, setActiveSwitch] = useState("details");
   const navigation = useNavigation<NativeStackNavigationProp<ScreensType>>();
 
@@ -85,6 +82,11 @@ function ViewProduct() {
   }, [filteredBatch])
 );
   
+  const contentSwitch: Record<string, JSX.Element> = {
+      details: <Details data={batchWithCode} />,
+      lots: <Lots data={data?.batches} />,
+  };
+  const lotsCount = data?.batches?.length ?? 0;
 
 
   return (
@@ -247,8 +249,8 @@ function ViewProduct() {
             </View>
           </View>
         </View>
-        <View>
-          <View style={styles.productSwitch}>
+        
+        {/*   <View style={styles.productSwitch}>
             <TouchableOpacity
               style={{
                 ...styles.btnSwitch,
@@ -309,8 +311,17 @@ function ViewProduct() {
                 />
               )}
             </TouchableOpacity>
-          </View>
-        </View>
+          </View> */}
+          <TabSwitch
+            tabs={[
+              { key: "details", label: "Mais detalhes" },
+              { key: "lots", label: "Outros lotes" },
+            ]}
+            activeTab={activeSwitch}
+            onChange={setActiveSwitch}
+            counts={{ lots: lotsCount }} 
+           />
+        
           <ScrollView
             style={{ flex: 1, marginTop: 16 }}
             contentContainerStyle={{ flexGrow: 1, paddingBottom: 30 }}
@@ -527,7 +538,7 @@ export const styles = StyleSheet.create({
   borderLeftColor: colors.neutral[3],
   paddingLeft: 12, 
 },
-  productSwitch: {
+/*   productSwitch: {
     width: "100%",
     height: 36,
     padding: 3,
@@ -553,7 +564,7 @@ export const styles = StyleSheet.create({
     fontWeight: "600",
     lineHeight: 20,
     letterSpacing: -0.24,
-  },
+  }, */
   bottomViewWrapper:{
     display: "flex",
     flexDirection: "row",
