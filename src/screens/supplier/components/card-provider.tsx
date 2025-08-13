@@ -6,11 +6,18 @@ import { useDialogModal } from "../../../hook/handle-modal/hooks/actions";
 import { colors } from "../../../styles/colors";
 import { formatPhoneNumber } from "../../../utils/format-phone-number";
 import CardProviderAction from "../../../components/card-provider-action";
+import { typography } from "../../../styles/typography";
+import { Truck } from "phosphor-react-native";
+import { useToast } from "../../../hook/toast/useToast";
 
 export const CardProviders = ({
   supplier,
+  showToast,
+  refetch,
 }: {
-  supplier: { name: string; contactInfo: string };
+  supplier: { id: string; name: string; contactInfo: string };
+  showToast: (message: string, type?: "success" | "danger" | "info" | "warning") => void;
+   refetch: () => void; 
 }) => {
   const navigate = useNavigation<NativeStackNavigationProp<any>>();
   const { handleModal } = useDialogModal();
@@ -18,7 +25,7 @@ export const CardProviders = ({
   const handleMember = () => {
     handleModal({
       isOpen: true,
-      element: <CardProviderAction supplier={supplier} />,
+      element: <CardProviderAction supplier={supplier} showToast={showToast} refetch={refetch} />,
     });
   };
   return (
@@ -38,6 +45,9 @@ export const CardProviders = ({
             gap: 12,
           }}
         >
+          <View style={styles.icon}>
+           <Truck size={24}/>
+           </View>
           <View>
             <Text style={styles.name}>{supplier?.name}</Text>
             <Text style={styles.role}>
@@ -65,19 +75,20 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     gap: 9,
     borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
+    borderBottomColor: colors.neutral[2] ,
   },
   name: {
-    color: colors.neutral["900"],
-    fontSize: 16,
-    fontWeight: "500",
-    lineHeight: 24,
+    color: colors.neutral[7],
+    fontSize: typography.size.base,
+    fontFamily: typography.fontFamily.medium,
+    lineHeight: typography.lineHeight.base,
   },
   role: {
-    color: "#595959",
-    fontSize: 14,
+    color: colors.neutral[5],
+    fontSize: typography.size["x-small"],
+    fontFamily: typography.fontFamily.medium,
     fontWeight: "500",
-    lineHeight: 20,
+    lineHeight: typography.lineHeight["x-small"],
   },
   backgroundImage: {
     width: "100%",
@@ -123,5 +134,15 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "black",
     backgroundColor: "black",
+  },
+  icon:{
+    display: "flex",
+    alignItems:"center",
+    justifyContent: "center",
+   padding: 4,
+   backgroundColor: colors.brand.light,
+   borderRadius: 8,
+   width: 38,
+   height: 38,
   },
 });

@@ -73,9 +73,9 @@ const InfiniteScrollWithLoad: React.FC<InfiniteScrollWithLoadProps> = ({
 
   return (
     <View style={styles.container}>
-      <Text style={{ padding: 20, fontSize: 16 }}>
+      {/* <Text style={{ padding: 20, fontSize: 16 }}>
         {isLoading ? "Carregando..." : `Total de itens: ${data.length}`}
-      </Text>
+      </Text> */}
       {!isLoading && (
         <FlatList
           data={data}

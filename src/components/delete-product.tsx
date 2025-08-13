@@ -8,35 +8,68 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { colors } from "../styles/colors";
 import { useState } from "react";
 import { useDeleteProductMutation } from "../services/product";
+import { useDeleteSupplierMutation } from "../services/supplier";
+import { useToast } from "../hook/toast/useToast";
 
-const DeleteProduct = ({
-  productId,
-  version,
-  onCancel,
-}: {
-  productId: string;
-  version: number;
-  onCancel: () => void;
-}) => {
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-    clearErrors,
-  } = useForm();
-
+type DeleteProps =
+  | {
+      type: "product";
+      productId: string;
+      version: number;
+      onCancel: () => void;
+      onSuccess: () => void; 
+    }
+  | {
+      type: "supplier";
+      id: string;
+      version: number;
+      onCancel: () => void;
+      onSuccess: () => void; 
+    };
+    
+  const DeleteModal = (props: DeleteProps) => {
+    console.log("DeleteModal props:", props);
+  const { handleSubmit } = useForm();
   const [active, setActive] = useState(false);
-  const [deleteProduct, {isLoading, isError}] = useDeleteProductMutation();
 
+  const [deleteProduct] = useDeleteProductMutation();
+  const [deleteSupplier] = useDeleteSupplierMutation();
 
-  const onSubmit  = async (data: any) => {
-     try {
-     console.log("Deletar produto com ID:", productId, version);
-     const result = await deleteProduct({id: productId, version}).unwrap();   
+  const { showToast } = useToast();
+
+  const onSubmit = async () => {
+    try {
+      if (props.type === "product") {
+        console.log("Deletar produto:", props.productId);
+        await deleteProduct({
+          id: props.productId,
+          version: props.version,
+        }).unwrap();
+      } 
+      else {
+        console.log("Deletar fornecedor:", props.id);
+        await deleteSupplier({
+          id: props.id,
+          version: String(props.version),
+        }).unwrap();
+      }
+       props.onSuccess();
+      //  showToast("Excluído com sucesso!", "success");
+       props.onCancel();
     } catch (error) {
-       console.error("Erro ao deletar produto", error);  
-    } 
+      console.error("Erro ao deletar", error);
+    }
   };
+
+  // const title =
+  //   props.type === "product"
+  //     ? "Excluir lote do produto"
+  //     : `Excluir fornecedor ${props.name ? `"${props.name}"` : ""}`;
+  const message =
+    props.type === "product"
+      ? "Você tem certeza de que quer excluir o lote deste produto? Essa ação é permanente!"
+      : "Tem certeza que deseja excluir esse fornecedor da sua loja?";
+
  
   return (
     <View style={styles.container}>
@@ -51,16 +84,16 @@ const DeleteProduct = ({
           family="bold"
           style={{ color: colors.neutral[7] }}
         >
-          Atenção
+          Atenção!
         </Typography>
         <Typography
           variant="BASE"
           family="regular"
           style={{ textAlign: "center", color: colors.neutral[6] }}
         >
-          Você tem certeza de que quer excluir o lote deste produto? Essa ação é
-          permanente!
+         {message}
         </Typography>
+        {props.type === "product" && (
         <View style={styles.deleteBatchContainer}>
           <TouchableOpacity
             onPress={() => setActive(!active)}
@@ -81,13 +114,15 @@ const DeleteProduct = ({
             Excluir todos os lotes deste produto
           </Typography>
         </View>
+          )}
+          
       </View>
       <View style={styles.divisor}></View>
       <View style={styles.buttonContainer}>
         <Button variant="danger" onPress={onSubmit}>
-          Excluir lote
+         {props.type === "product" ? "Excluir lote" : "Remover fornecedor"}
         </Button>
-        <Button variant="neutral" onPress={onCancel}>Cancelar</Button>
+        <Button variant="neutral" onPress={props.onCancel}>Cancelar</Button>
         
       </View>
 
@@ -155,4 +190,4 @@ const styles = StyleSheet.create({
   }, 
 });
 
-export default DeleteProduct;
+export default DeleteModal;

@@ -5,43 +5,29 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { colors } from "../../../styles/colors";
 import { typography } from "../../../styles/typography";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { ArrowLeft } from "phosphor-react-native";
 
 export default function Header() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={{ display: "flex", flexDirection: "row", gap: 12 }}>
+      <View style={{ display: "flex", flexDirection: "row", marginTop:8 }}>
         <TouchableOpacity
           onPress={() => {
             navigation.goBack();
           }}
         >
-          <Ionicons name="arrow-back-outline" size={24} color="#343330" />
+          <ArrowLeft size={24} color={colors.neutral[7]} />
         </TouchableOpacity>
-
-        <View style={{}}>
+        <View style={styles.header}>
           <Text
-            style={{
-              color: colors.neutral["900"],
-              fontSize: 16,
-              fontWeight: "600",
-              fontFamily: typography.fontFamily.semibold,
-              lineHeight: 24,
-            }}
+            style={styles.title}
           >
             Fornecedores
           </Text>
         </View>
       </View>
-      <View
-        style={{
-          display: "flex",
-          alignItems: "flex-start",
-          flexDirection: "row",
-          gap: 12,
-        }}
-      ></View>
     </SafeAreaView>
   );
 }
@@ -52,11 +38,21 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    padding: 20,
-
+    paddingHorizontal: 20,
     width: "100%",
     borderBottomColor: colors.neutral["200"],
     borderBottomWidth: 1,
+  },
+  header:{
+    display:"flex",
+    width: 375,
+    marginLeft: 16,
+  },
+  title:{
+    color: colors.neutral[7],
+    fontFamily: typography.fontFamily.semibold,
+    fontSize: typography.size.base,
+    lineHeight: 24,
   },
   badge: {
     position: "absolute",
@@ -75,14 +71,5 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 12,
     fontWeight: "bold",
-  },
-  icon: {
-    width: 40,
-    height: 40,
-    padding: 8,
-    backgroundColor: colors.neutral["100"],
-    borderRadius: 22.5,
-    alignItems: "center",
-    display: "flex",
   },
 });
