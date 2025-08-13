@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
 
   container: {
     width: "100%",
+    height: 56,
     paddingBottom: 8,
     paddingTop: 12,
     paddingHorizontal: 16,
@@ -65,15 +66,16 @@ const styles = StyleSheet.create({
   option: {
     padding: 8,
     borderRadius: 999,
-    backgroundColor: colors.white,
+    backgroundColor: colors.neutral[1],
   },
   options: {
     flexDirection: "row",
     gap: 12,
   },
   logoWhite: {
-    width: 100,
-    height: 60,
-    resizeMode: "contain",
+    width: 80,
+    height: 20,
+    marginTop: 5,
+  /*    resizeMode: "stretch",  */
   },
 });
