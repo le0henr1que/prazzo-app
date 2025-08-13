@@ -19,7 +19,14 @@ export const productInformation = apiSlice.injectEndpoints({
       }),
       providesTags: [Tags.PRODUCT],
     }),
+    deleteProduct: builder.mutation<any, { id: string; version: number }>({
+      query: ({ id, version }) => ({
+        url: `/product/${id}?version=${version}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: [Tags.PRODUCT],
+    }),
   }),
 });
 
-export const { useGetProductQuery, useGetOneProductQuery } = productInformation;
+export const { useGetProductQuery, useGetOneProductQuery, useDeleteProductMutation } = productInformation;

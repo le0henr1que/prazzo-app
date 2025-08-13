@@ -1,4 +1,4 @@
-export const formatDate = (date: Date | string, p0: string): string => {
+export const formatDate = (date: Date | /* string, p0: */ string): string => {
   if (!date) return "Sem data";
   const d = typeof date === "string" ? new Date(date) : date;
   if (isNaN(d.getTime())) return "Data inválida";
