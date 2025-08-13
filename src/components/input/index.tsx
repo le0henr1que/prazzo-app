@@ -54,8 +54,14 @@ export const CustomInput: React.FC<CustomInputProps> = ({
       <OptionsInput
         {...props}
         errors={errors}
-        options={options}
-        onChange={onChange}
+        options={options ?? []}
+         onChange={(val: any) => {
+       
+        if (onChange) {
+        
+          onChange(val && val.value !== undefined ? val.value : val);
+        }
+      }}
       />
     ),
     normal: () => (

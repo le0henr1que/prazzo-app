@@ -65,7 +65,7 @@ export type ScreensType = {
   LoadingScreen: undefined;
   AddBatch: undefined;
   EditProduct: {
-    productCode: string;
+    productCode?: string;
     productInformation?: any;
     batchId?: string;
   };
